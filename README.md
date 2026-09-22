@@ -102,11 +102,11 @@ The main objectives of the project are:
                                  │
                                  ▼
                     ┌────────────────────────┐
-                    │ Generative AI           │
+                    │ Generative AI          │
                     │                        │
-                    │ Incident Explanation    │
-                    │ Evidence Summary        │
-                    │ Recommendations         │
+                    │ Incident Explanation   │
+                    │ Evidence Summary       │
+                    │ Recommendations        │
                     └────────────┬───────────┘
                                  │
                   ┌──────────────┴──────────────┐
