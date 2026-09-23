@@ -38,3 +38,7 @@ npm-debug.log*
 
 # Windows
 Thumbs.db
+
+# Backend local cache & test cache
+backend/services/local_db_cache.json
+.pytest_cache/

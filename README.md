@@ -864,23 +864,23 @@ The project does not intentionally perform attacks against external systems.
 
 - [x] Project concept finalized
 - [x] UNSW-NB15 dataset selected
-- [ ] Training dataset obtained
-- [ ] Testing dataset obtained
-- [ ] Data preprocessing
-- [ ] Exploratory data analysis
-- [ ] Binary classification
-- [ ] Multiclass attack classification
-- [ ] Model comparison
-- [ ] NLP log analysis
+- [x] Training dataset obtained
+- [x] Testing dataset obtained
+- [x] Data preprocessing
+- [x] Exploratory data analysis
+- [x] Binary classification
+- [x] Multiclass attack classification
+- [x] Model comparison
+- [x] NLP log analysis
 - [ ] PySpark analytics
 - [x] Risk scoring
-- [ ] Generative AI integration
-- [ ] MongoDB integration
-- [ ] FastAPI backend
+- [x] Generative AI integration
+- [x] MongoDB integration
+- [x] FastAPI backend
 - [x] React dashboard
 - [ ] Cloud deployment
-- [ ] Testing and evaluation
-- [ ] Final documentation
+- [x] Testing and evaluation
+- [x] Final documentation
 
 > Update the project status checklist as each module is implemented.
 
