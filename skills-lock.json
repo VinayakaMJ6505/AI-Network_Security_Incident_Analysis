@@ -7,6 +7,12 @@
       "skillPath": ".agents/skills/frontend-design/SKILL.md",
       "computedHash": "89a54ba7fcf22ca2e394ebc0c040c23158c2e8a0acfd63a3dfaa8436135553a2"
     },
+    "frontend-developer": {
+      "source": "rmyndharis/antigravity-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-developer/SKILL.md",
+      "computedHash": "a5e913546be2ecc6769d44034d35bde367fe7f9fb5712b7d4121c17b0c5df92a"
+    },
     "react": {
       "source": "vercel-labs/json-render",
       "sourceType": "github",
