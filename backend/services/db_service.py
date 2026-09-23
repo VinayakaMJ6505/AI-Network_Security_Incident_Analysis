@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class DatabaseService:
     def __init__(self):
         self.mongodb_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-        self.db_name = os.getenv("MONGODB_DB_NAME", "network_security_db")
+        self.db_name = os.getenv("MONGODB_DB_NAME", "incident_db")
         self.is_connected = False
         self.client = None
         self.db = None
