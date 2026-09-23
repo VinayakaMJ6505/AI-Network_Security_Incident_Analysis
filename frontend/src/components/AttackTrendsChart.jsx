@@ -14,13 +14,13 @@ export default function AttackTrendsChart({ data = [] }) {
   const [timeRange, setTimeRange] = useState('24h');
 
   return (
-    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-md shadow-lg">
+    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-xl shadow-xl shadow-black/20">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-800/80">
         <div>
-          <h3 className="text-sm sm:text-base font-bold text-white tracking-wide font-display">
+          <h3 className="text-sm sm:text-base font-bold text-white tracking-tight font-display">
             Security Events & Attack Trends
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5 font-mono">
+          <p className="text-xs text-slate-400 mt-0.5">
             Temporal fluctuation of normal vs malicious traffic flows
           </p>
         </div>
@@ -30,7 +30,7 @@ export default function AttackTrendsChart({ data = [] }) {
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-2.5 py-1 rounded-lg transition-all ${
+              className={`px-3 py-1 rounded-lg transition-all ${
                 timeRange === range
                   ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-white border border-transparent'
@@ -55,15 +55,15 @@ export default function AttackTrendsChart({ data = [] }) {
             >
               <defs>
                 <linearGradient id="colorNormal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="colorAttack" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.35} />
                   <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="colorHighRisk" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.5} />
+                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4} />
                   <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
@@ -118,7 +118,7 @@ export default function AttackTrendsChart({ data = [] }) {
                 fill="url(#colorHighRisk)"
               />
               <Legend
-                formatter={(value) => <span className="text-slate-300 text-[10px] font-mono">{value}</span>}
+                formatter={(value) => <span className="text-slate-300 text-[11px] font-mono">{value}</span>}
                 verticalAlign="bottom"
                 height={30}
               />

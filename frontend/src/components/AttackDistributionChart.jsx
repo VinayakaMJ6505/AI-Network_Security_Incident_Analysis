@@ -23,13 +23,13 @@ export default function AttackDistributionChart({ data = [] }) {
   const [chartType, setChartType] = useState('bar');
 
   return (
-    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-md shadow-lg">
+    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-xl shadow-xl shadow-black/20">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-800/80">
         <div>
-          <h3 className="text-sm sm:text-base font-bold text-white tracking-wide font-display">
+          <h3 className="text-sm sm:text-base font-bold text-white tracking-tight font-display">
             Attack Distribution (UNSW-NB15 Categories)
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5 font-mono">
+          <p className="text-xs text-slate-400 mt-0.5">
             Breakdown of classified network events by attack type
           </p>
         </div>
@@ -138,7 +138,7 @@ export default function AttackDistributionChart({ data = [] }) {
                   formatter={(val, name, item) => [`${val} (${item.payload.percentage || 0}%)`, item.payload.category]}
                 />
                 <Legend
-                  formatter={(value) => <span className="text-slate-300 text-[10px] font-mono">{value}</span>}
+                  formatter={(value) => <span className="text-slate-300 text-[11px] font-mono">{value}</span>}
                   layout="horizontal"
                   verticalAlign="bottom"
                   align="center"

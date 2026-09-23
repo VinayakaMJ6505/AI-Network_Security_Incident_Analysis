@@ -1,24 +1,5 @@
 import React from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from 'recharts';
-import { Database, ShieldAlert, Cpu, Network, Server } from 'lucide-react';
-
-const PROTO_DATA = [
-  { name: 'TCP', count: 124300, percentage: 70.9, color: '#3b82f6' },
-  { name: 'UDP', count: 42100, percentage: 24.0, color: '#06b6d4' },
-  { name: 'ICMP', count: 8941, percentage: 5.1, color: '#8b5cf6' },
-];
+import { Database } from 'lucide-react';
 
 export default function AnalyticsView({ stats = {} }) {
   const topSources = stats.top_sources || [];
@@ -27,12 +8,12 @@ export default function AnalyticsView({ stats = {} }) {
   return (
     <div className="space-y-6">
       {/* Title */}
-      <div className="p-5 sm:p-6 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-slate-900/90 via-[#0d1424]/90 to-slate-900/90 backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.06)]">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2.5 font-display">
-          <Database className="w-5 h-5 text-emerald-400" />
+      <div className="p-6 sm:p-8 rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/80 via-[#0d1527]/80 to-slate-900/80 backdrop-blur-xl shadow-xl shadow-black/20">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3 font-display">
+          <Database className="w-6 h-6 text-emerald-400" />
           Big Data Analytics & PySpark Aggregations
         </h2>
-        <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+        <p className="text-sm text-slate-300 mt-1 max-w-3xl leading-relaxed">
           High-throughput security event aggregation modeling distributed PySpark DataFrame operations across 175,000+ UNSW-NB15 flow records.
         </p>
       </div>
@@ -40,30 +21,30 @@ export default function AnalyticsView({ stats = {} }) {
       {/* Top Attacker IPs & Targeted Ports */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Source IPs Table */}
-        <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-md shadow-lg">
+        <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-xl shadow-xl shadow-black/20">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/80">
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-white tracking-wide font-display">
+              <h3 className="text-base font-bold text-white tracking-tight font-display">
                 Top Attacking Source IPs (PySpark GroupBy)
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5 font-mono">
+              <p className="text-xs text-slate-400 mt-0.5">
                 Aggregated event frequencies grouped by external origin
               </p>
             </div>
-            <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-slate-950 text-cyan-400 border border-slate-800">
+            <span className="text-[10px] font-mono px-3 py-1 rounded-full bg-slate-950 text-cyan-400 border border-slate-800">
               COUNT(events) DESC
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono text-slate-300">
-              <thead className="bg-slate-950/70 uppercase text-[10px] text-slate-400 border-b border-slate-800/80 font-mono">
+              <thead className="bg-slate-950/70 uppercase text-[10px] text-slate-400 border-b border-slate-800/80 font-sans font-semibold tracking-wider">
                 <tr>
-                  <th className="py-2.5 px-3">Rank</th>
-                  <th className="py-2.5 px-3">Source IP</th>
-                  <th className="py-2.5 px-3">Target Scope</th>
-                  <th className="py-2.5 px-3">Primary Threat</th>
-                  <th className="py-2.5 px-3 text-right">Packets</th>
+                  <th className="py-3 px-3">Rank</th>
+                  <th className="py-3 px-3">Source IP</th>
+                  <th className="py-3 px-3">Target Scope</th>
+                  <th className="py-3 px-3">Primary Threat</th>
+                  <th className="py-3 px-3 text-right">Packets</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
@@ -74,15 +55,15 @@ export default function AnalyticsView({ stats = {} }) {
                   { ip: '103.251.167.20', country: 'External Host', attackType: 'Shellcode', count: 654 }
                 ]).map((src, i) => (
                   <tr key={i} className="hover:bg-cyan-500/[0.04] transition-colors">
-                    <td className="py-2.5 px-3 text-slate-500">#{i + 1}</td>
-                    <td className="py-2.5 px-3 font-bold text-white">{src.ip}</td>
-                    <td className="py-2.5 px-3 text-slate-400">{src.country}</td>
-                    <td className="py-2.5 px-3">
-                      <span className="px-2 py-0.5 rounded-md text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                    <td className="py-3 px-3 text-slate-500">#{i + 1}</td>
+                    <td className="py-3 px-3 font-bold text-white">{src.ip}</td>
+                    <td className="py-3 px-3 text-slate-400 font-sans">{src.country}</td>
+                    <td className="py-3 px-3 font-sans">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
                         {src.attackType}
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 text-right text-emerald-400 font-bold">
+                    <td className="py-3 px-3 text-right text-emerald-400 font-bold">
                       {src.count?.toLocaleString()}
                     </td>
                   </tr>
@@ -93,29 +74,29 @@ export default function AnalyticsView({ stats = {} }) {
         </div>
 
         {/* Top Targeted Ports Table */}
-        <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-md shadow-lg">
+        <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-xl shadow-xl shadow-black/20">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/80">
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-white tracking-wide font-display">
+              <h3 className="text-base font-bold text-white tracking-tight font-display">
                 Top Targeted Destination Ports
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5 font-mono">
+              <p className="text-xs text-slate-400 mt-0.5">
                 Ingress port frequency distribution across security perimeter
               </p>
             </div>
-            <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-slate-950 text-amber-400 border border-slate-800">
+            <span className="text-[10px] font-mono px-3 py-1 rounded-full bg-slate-950 text-amber-400 border border-slate-800">
               INGRESS PROFILES
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono text-slate-300">
-              <thead className="bg-slate-950/70 uppercase text-[10px] text-slate-400 border-b border-slate-800/80 font-mono">
+              <thead className="bg-slate-950/70 uppercase text-[10px] text-slate-400 border-b border-slate-800/80 font-sans font-semibold tracking-wider">
                 <tr>
-                  <th className="py-2.5 px-3">Port</th>
-                  <th className="py-2.5 px-3">Service</th>
-                  <th className="py-2.5 px-3">Risk Rating</th>
-                  <th className="py-2.5 px-3 text-right">Hits</th>
+                  <th className="py-3 px-3">Port</th>
+                  <th className="py-3 px-3">Service</th>
+                  <th className="py-3 px-3">Risk Rating</th>
+                  <th className="py-3 px-3 text-right">Hits</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
@@ -127,10 +108,10 @@ export default function AnalyticsView({ stats = {} }) {
                   { port: 53, service: 'DNS Name Service', risk: 'Medium', count: 5210 }
                 ]).map((p, i) => (
                   <tr key={i} className="hover:bg-cyan-500/[0.04] transition-colors">
-                    <td className="py-2.5 px-3 font-bold text-cyan-300">:{p.port}</td>
-                    <td className="py-2.5 px-3 text-slate-300">{p.service}</td>
-                    <td className="py-2.5 px-3">
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] ${
+                    <td className="py-3 px-3 font-bold text-cyan-300">:{p.port}</td>
+                    <td className="py-3 px-3 text-slate-300 font-sans">{p.service}</td>
+                    <td className="py-3 px-3 font-sans">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
                         p.risk === 'Critical'
                           ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
                           : p.risk === 'High'
@@ -140,7 +121,7 @@ export default function AnalyticsView({ stats = {} }) {
                         {p.risk}
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 text-right text-white font-bold">
+                    <td className="py-3 px-3 text-right text-white font-bold">
                       {p.count?.toLocaleString()}
                     </td>
                   </tr>
