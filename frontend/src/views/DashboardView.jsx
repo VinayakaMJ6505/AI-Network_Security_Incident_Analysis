@@ -12,7 +12,6 @@ import {
   Radio,
   FileCode,
   ShieldCheck,
-  CheckCircle2,
   Lock,
 } from 'lucide-react';
 
@@ -56,14 +55,14 @@ export default function DashboardView({
           <div className="space-y-3">
             {/* Status Pills */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${currentDefconObj.color}`}>
+              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${currentDefconObj.color} whitespace-nowrap`}>
                 <span className={`w-2 h-2 rounded-full ${currentDefconObj.dot} animate-pulse`} />
                 {currentDefconObj.label}: {currentDefconObj.title}
               </span>
-              <span className="text-xs text-cyan-300/90 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20 font-mono">
+              <span className="text-xs text-cyan-300/90 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20 font-sans whitespace-nowrap">
                 XGBoost ML Engine • 97.4% Acc
               </span>
-              <span className="text-xs text-emerald-300/90 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 font-mono">
+              <span className="text-xs text-emerald-300/90 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 font-sans whitespace-nowrap">
                 MongoDB • incident_db
               </span>
             </div>
@@ -77,19 +76,19 @@ export default function DashboardView({
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
             <button
               onClick={() => setActiveTab('analyzer')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 text-xs font-bold shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all active:scale-[0.98]"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 text-xs font-bold shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all active:scale-[0.98] whitespace-nowrap shrink-0"
             >
-              <Radio className="w-4 h-4 fill-current" />
+              <Radio className="w-4 h-4 fill-current shrink-0" />
               Live Event Analyzer
             </button>
             <button
               onClick={() => setActiveTab('logparser')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-cyan-500/40 text-xs font-semibold transition-all active:scale-[0.98]"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-cyan-500/40 text-xs font-semibold transition-all active:scale-[0.98] whitespace-nowrap shrink-0"
             >
-              <FileCode className="w-4 h-4 text-cyan-400" />
+              <FileCode className="w-4 h-4 text-cyan-400 shrink-0" />
               Upload Log
             </button>
           </div>
@@ -97,18 +96,18 @@ export default function DashboardView({
 
         {/* Defense Posture Level Matrix */}
         <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
-            <ShieldCheck className="w-4 h-4 text-cyan-400" />
+          <div className="flex items-center gap-2 text-xs text-slate-400 font-medium whitespace-nowrap">
+            <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" />
             <span>Defense Posture State:</span>
           </div>
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5 shrink-0">
             {DEFCON_LEVELS.map((def) => {
               const isSelected = selectedDefcon === def.level;
               return (
                 <button
                   key={def.level}
                   onClick={() => setSelectedDefcon(def.level)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-200 border ${
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all duration-200 border ${
                     isSelected
                       ? `${def.color} shadow-sm`
                       : 'bg-slate-950/40 text-slate-400 border-slate-800 hover:text-slate-200 hover:border-slate-700'

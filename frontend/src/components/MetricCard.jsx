@@ -76,34 +76,35 @@ export default function MetricCard({
       <div>
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs font-semibold tracking-wider uppercase text-slate-400 flex items-center gap-2">
-            <span className={`w-1.5 h-1.5 rounded-full ${scheme.accent}`} />
-            {title}
+            <span className={`w-1.5 h-1.5 rounded-full ${scheme.accent} shrink-0`} />
+            <span className="truncate">{title}</span>
           </span>
           {Icon && (
             <div
-              className={`rounded-xl p-2.5 ${scheme.bg} ${scheme.border} border transition-all duration-300 group-hover:scale-105 shadow-sm`}
+              className={`rounded-xl p-2.5 ${scheme.bg} ${scheme.border} border transition-all duration-300 group-hover:scale-105 shadow-sm shrink-0`}
             >
               <Icon className={`w-4 h-4 ${scheme.text}`} />
             </div>
           )}
         </div>
 
-        {/* Counter value */}
-        <div className="mt-3 flex items-baseline gap-2">
+        {/* Counter value and Subtitle */}
+        <div className="mt-3">
           <div className="text-3xl font-extrabold tracking-tight text-white font-mono">
             {value}
           </div>
+          {subtitle && (
+            <div className="text-xs text-slate-400 mt-1 font-sans">
+              {subtitle}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Footer Info: Subtitle & Badge */}
-      <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
-        {subtitle && (
-          <span className="text-xs text-slate-400 leading-tight">
-            {subtitle}
-          </span>
-        )}
-        {badge && (
+      {/* Footer Info: Status Badge on its own line */}
+      <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between min-h-[30px]">
+        <span className="text-[11px] text-slate-500 font-medium">Telemetry</span>
+        {badge ? (
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap ${
               badgeType === 'danger'
@@ -113,6 +114,8 @@ export default function MetricCard({
           >
             {badge}
           </span>
+        ) : (
+          <span className="text-[10px] text-slate-600 font-mono">Active</span>
         )}
       </div>
     </div>
