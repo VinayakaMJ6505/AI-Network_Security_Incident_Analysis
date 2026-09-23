@@ -30,11 +30,9 @@ def test_integration_system_health():
     assert data["status"] == "healthy"
     assert data["ml_model_loaded"] is True
     assert len(data["classes_supported"]) == 10
-    print("\n[PASS] Health Check: Backend online & XGBoost ML model loaded.")
 
 def test_integration_live_analyzer_flow():
     """Simulates LiveAnalyzerView submitting an event and receiving full analysis."""
-    # Test 1: SSH Brute Force / Exploits
     event_payload = {
         "proto": "tcp",
         "service": "ssh",
@@ -55,7 +53,6 @@ def test_integration_live_analyzer_flow():
     assert res.status_code == 200
     result = res.json()
 
-    # Verify ML classification
     assert result["status"] == "success"
     assert "incident_id" in result
     assert result["attack_type"] in ml_service.classes
@@ -64,19 +61,15 @@ def test_integration_live_analyzer_flow():
     assert result["severity"] in ("LOW", "MEDIUM", "HIGH", "CRITICAL")
     assert "probabilities" in result
 
-    # Verify GenAI explanation included for immediate frontend rendering
     assert "ai_explanation" in result
     explanation = result["ai_explanation"]
     assert "incident_summary" in explanation or "summary" in explanation
     assert len(explanation.get("evidence", [])) > 0
     assert len(explanation.get("investigation_recommendations", [])) > 0
 
-    # Verify incident persisted in database
     inc_in_db = db_service.get_incident_by_id(result["incident_id"])
     assert inc_in_db is not None
     assert inc_in_db["port"] == 22
-    print(f"[PASS] Live Analyzer Flow: Attack={result['attack_type']}, Risk={result['risk_score']}, Severity={result['severity']}")
-    return result["incident_id"]
 
 def test_integration_log_parser_json_flow():
     """Simulates LogParserView submitting raw text directly as JSON."""
@@ -95,7 +88,6 @@ def test_integration_log_parser_json_flow():
     assert data["extracted_entities"]["port"] == 22
     assert data["extracted_entities"]["failed_attempts"] == 35
     assert data["incident"] is not None
-    print("[PASS] Log Parser JSON Flow: Extracted entities & generated incident verified.")
 
 def test_integration_log_parser_csv_file_flow():
     """Simulates LogParserView uploading a UNSW-NB15 flow CSV file."""
@@ -112,11 +104,12 @@ def test_integration_log_parser_csv_file_flow():
     assert data["success"] is True
     assert data["total_events_processed"] == 2
     assert len(data["processed_incidents"]) == 2
-    print(f"[PASS] Log Parser CSV Flow: Processed {data['total_events_processed']} dataset records.")
 
-def test_integration_incidents_view_flow(incident_id: str):
+def test_integration_incidents_view_flow():
     """Simulates IncidentExplorerView fetching incident list and details."""
-    # List incidents
+    r_create = client.post("/api/analyze", json={"source_ip": "192.168.1.45", "port": 22})
+    incident_id = r_create.json()["incident_id"]
+
     res = client.get("/api/incidents?limit=20")
     assert res.status_code == 200
     incidents = res.json()
@@ -132,13 +125,11 @@ def test_integration_incidents_view_flow(incident_id: str):
     assert "severity" in first
     assert "timestamp" in first
 
-    # Fetch incident details by ID
     res_single = client.get(f"/api/incidents/{incident_id}")
     assert res_single.status_code == 200
     detail = res_single.json()
     assert detail["id"] == incident_id
     assert detail["port"] == 22
-    print(f"[PASS] Incidents View Flow: Retrieved {len(incidents)} incidents, detailed ID lookup verified.")
 
 def test_integration_dashboard_view_flow():
     """Simulates DashboardView fetching live SOC KPIs and chart distributions."""
@@ -161,10 +152,12 @@ def test_integration_dashboard_view_flow():
     assert "top_ports" in data
     assert "top_sources" in data
     assert "recent_incidents" in data
-    print(f"[PASS] Dashboard Flow: Total={data['total_events']}, Attacks={data['detected_attacks']}, Categories={len(data['attack_distribution'])}")
 
-def test_integration_genai_explain_flow(incident_id: str):
+def test_integration_genai_explain_flow():
     """Simulates GenAI explanation request from IncidentDetailsModal."""
+    r_create = client.post("/api/analyze", json={"source_ip": "10.0.0.99", "port": 4444})
+    incident_id = r_create.json()["incident_id"]
+
     res = client.post("/api/explain", json={"incident_id": incident_id})
     assert res.status_code == 200
     explanation = res.json()
@@ -176,19 +169,18 @@ def test_integration_genai_explain_flow(incident_id: str):
     assert len(explanation["recommendations"]) > 0
     assert "potential_impact" in explanation
     assert explanation["provider"] != ""
-    print(f"[PASS] GenAI Explanation Flow: Generated summary ({len(explanation['summary'])} chars) with {len(explanation['recommendations'])} recommendations.")
 
 if __name__ == "__main__":
     print("==========================================================")
     print("RUNNING END-TO-END FULL STACK INTEGRATION VERIFICATION")
     print("==========================================================")
     test_integration_system_health()
-    created_id = test_integration_live_analyzer_flow()
+    test_integration_live_analyzer_flow()
     test_integration_log_parser_json_flow()
     test_integration_log_parser_csv_file_flow()
-    test_integration_incidents_view_flow(created_id)
+    test_integration_incidents_view_flow()
     test_integration_dashboard_view_flow()
-    test_integration_genai_explain_flow(created_id)
+    test_integration_genai_explain_flow()
     print("\n==========================================================")
     print("ALL INTEGRATION TESTS PASSED WITH 100% SUCCESS!")
     print("==========================================================")

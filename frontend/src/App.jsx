@@ -72,8 +72,8 @@ export default function App() {
   }, [loadData]);
 
   return (
-    <div className="min-h-screen bg-[#0a0d14] text-slate-100 flex flex-col font-sans">
-      {/* Top Navigation */}
+    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+      {/* Top Navigation Bar */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -83,7 +83,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
         {activeTab === 'dashboard' && (
           <DashboardView
             stats={stats}
@@ -125,11 +125,21 @@ export default function App() {
         />
       )}
 
-      {/* Footer */}
-      <footer className="w-full border-t border-slate-800/80 bg-[#0a0d14] py-4 text-center text-xs text-slate-500 font-mono">
-        <p>
-          AI-Powered Network Security Incident Analysis • MCA Project • Nitte Meenakshi Institute of Technology
-        </p>
+      {/* Tactical Footer */}
+      <footer className="w-full border-t border-slate-800/80 bg-[#070b14]/90 backdrop-blur-md py-4 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 font-mono text-center sm:text-left">
+          <p>
+            AI-Powered Network Security Incident Analysis • MCA Project • Nitte Meenakshi Institute of Technology
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 text-cyan-400/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              FastAPI + React SOC Core
+            </span>
+            <span className="text-slate-700">|</span>
+            <span>UNSW-NB15 ML Guard</span>
+          </div>
+        </div>
       </footer>
     </div>
   );

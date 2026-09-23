@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import StatusBadge from './StatusBadge';
-import { Search, Eye, Filter, ArrowUpDown } from 'lucide-react';
+import { Search, Eye, Filter, ArrowUpDown, ChevronRight, ShieldAlert } from 'lucide-react';
 
 export default function RecentIncidentsTable({
   incidents = [],
@@ -64,30 +64,30 @@ export default function RecentIncidentsTable({
   };
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-[#111726]/80 backdrop-blur-sm overflow-hidden">
+    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-md overflow-hidden shadow-lg">
       {/* Header & Controls */}
-      <div className="p-5 border-b border-slate-800">
+      <div className="p-4 sm:p-5 border-b border-slate-800/80 bg-slate-950/40">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-bold text-white tracking-wide">
+            <h3 className="text-sm sm:text-base font-bold text-white tracking-wide font-display">
               {title}
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-400 mt-0.5 font-mono">
               Showing {filteredIncidents.length} of {incidents.length} total detected security incidents
             </p>
           </div>
 
           {showFilters && (
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
               {/* Search */}
-              <div className="relative min-w-[220px]">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="relative min-w-[200px] flex-grow sm:flex-grow-0">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search by IP, attack, or port..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-slate-900/80 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono transition-colors"
                 />
               </div>
 
@@ -96,7 +96,7 @@ export default function RecentIncidentsTable({
                 aria-label="Filter by Severity"
                 value={selectedSeverity}
                 onChange={(e) => setSelectedSeverity(e.target.value)}
-                className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-300 focus:outline-none focus:border-blue-500"
+                className="px-3 py-1.5 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-slate-300 focus:outline-none focus:border-cyan-500 font-mono transition-colors"
               >
                 <option value="ALL">All Severities</option>
                 <option value="LOW">LOW</option>
@@ -110,7 +110,7 @@ export default function RecentIncidentsTable({
                 aria-label="Filter by Attack Category"
                 value={selectedAttack}
                 onChange={(e) => setSelectedAttack(e.target.value)}
-                className="px-2.5 py-1.5 text-xs rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-300 focus:outline-none focus:border-blue-500"
+                className="px-3 py-1.5 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-slate-300 focus:outline-none focus:border-cyan-500 font-mono transition-colors"
               >
                 <option value="ALL">All Categories</option>
                 {attackCategories.map((cat) => (
@@ -127,123 +127,136 @@ export default function RecentIncidentsTable({
       {/* Table Content */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-900/60 uppercase font-semibold text-[11px] text-slate-400 border-b border-slate-800">
+          <thead className="bg-slate-950/70 uppercase font-semibold text-[11px] text-slate-400 border-b border-slate-800/80 font-mono">
             <tr>
-              <th className="py-3 px-4">
+              <th className="py-3.5 px-4">
                 <button
                   onClick={() => toggleSort('source_ip')}
-                  className="flex items-center gap-1 hover:text-white"
+                  className="flex items-center gap-1 hover:text-cyan-300 transition-colors"
                 >
-                  Source IP <ArrowUpDown className="w-3 h-3" />
+                  Source IP <ArrowUpDown className="w-3 h-3 text-slate-500" />
                 </button>
               </th>
-              <th className="py-3 px-4">Destination / Port</th>
-              <th className="py-3 px-4">
+              <th className="py-3.5 px-4 hidden sm:table-cell">Destination / Port</th>
+              <th className="py-3.5 px-4">
                 <button
                   onClick={() => toggleSort('attack_type')}
-                  className="flex items-center gap-1 hover:text-white"
+                  className="flex items-center gap-1 hover:text-cyan-300 transition-colors"
                 >
-                  Attack Type <ArrowUpDown className="w-3 h-3" />
+                  Attack Type <ArrowUpDown className="w-3 h-3 text-slate-500" />
                 </button>
               </th>
-              <th className="py-3 px-4">
+              <th className="py-3.5 px-4">
                 <button
                   onClick={() => toggleSort('risk_score')}
-                  className="flex items-center gap-1 hover:text-white"
+                  className="flex items-center gap-1 hover:text-cyan-300 transition-colors"
                 >
-                  Risk Score <ArrowUpDown className="w-3 h-3" />
+                  Risk Score <ArrowUpDown className="w-3 h-3 text-slate-500" />
                 </button>
               </th>
-              <th className="py-3 px-4">
+              <th className="py-3.5 px-4">
                 <button
                   onClick={() => toggleSort('severity')}
-                  className="flex items-center gap-1 hover:text-white"
+                  className="flex items-center gap-1 hover:text-cyan-300 transition-colors"
                 >
-                  Severity <ArrowUpDown className="w-3 h-3" />
+                  Severity <ArrowUpDown className="w-3 h-3 text-slate-500" />
                 </button>
               </th>
-              <th className="py-3 px-4">
+              <th className="py-3.5 px-4 hidden md:table-cell">
                 <button
                   onClick={() => toggleSort('timestamp')}
-                  className="flex items-center gap-1 hover:text-white"
+                  className="flex items-center gap-1 hover:text-cyan-300 transition-colors"
                 >
-                  Timestamp <ArrowUpDown className="w-3 h-3" />
+                  Timestamp <ArrowUpDown className="w-3 h-3 text-slate-500" />
                 </button>
               </th>
-              <th className="py-3 px-4 text-right">Actions</th>
+              <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 font-mono">
             {filteredIncidents.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-slate-500 font-sans">
-                  No security incidents matching current filters.
+                <td colSpan={7} className="py-12 text-center text-slate-500 font-sans">
+                  <div className="flex flex-col items-center justify-center">
+                    <ShieldAlert className="w-8 h-8 opacity-30 text-cyan-400 mb-2" />
+                    <span>No security incidents matching current filters.</span>
+                  </div>
                 </td>
               </tr>
             ) : (
-              filteredIncidents.map((incident) => {
-                const riskPercent = Math.min(100, Math.max(0, incident.risk_score || 0));
-                let barColor = 'bg-emerald-500';
-                if (riskPercent > 80) barColor = 'bg-rose-500';
-                else if (riskPercent > 60) barColor = 'bg-orange-500';
-                else if (riskPercent > 30) barColor = 'bg-amber-500';
-
-                return (
-                  <tr
-                    key={incident.id}
-                    className="hover:bg-slate-800/40 transition-colors group cursor-pointer"
-                    onClick={() => onSelectIncident(incident)}
-                  >
-                    <td className="py-3.5 px-4 font-semibold text-white">
-                      {incident.source_ip}
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-400">
-                      {incident.destination_ip}:{incident.port || 80}
-                      <span className="ml-1.5 text-[10px] px-1 py-0.5 rounded bg-slate-800 text-slate-400 uppercase">
-                        {incident.protocol || 'TCP'}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-sans font-medium text-slate-200">
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-blue-400/80"></span>
-                        {incident.attack_type}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-16 h-2 rounded-full bg-slate-800 overflow-hidden">
-                          <div
-                            className={`h-full ${barColor}`}
-                            style={{ width: `${riskPercent}%` }}
-                          />
-                        </div>
-                        <span className="font-bold text-slate-200">
-                          {incident.risk_score}
-                        </span>
+              filteredIncidents.map((inc) => (
+                <tr
+                  key={inc.id}
+                  onClick={() => onSelectIncident && onSelectIncident(inc)}
+                  className="hover:bg-cyan-500/[0.04] transition-colors cursor-pointer group"
+                >
+                  <td className="py-3.5 px-4">
+                    <div className="font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                      {inc.source_ip}
+                    </div>
+                    {inc.username && (
+                      <div className="text-[10px] text-slate-500 font-sans">
+                        User: {inc.username}
                       </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-sans">
-                      <StatusBadge severity={incident.severity} />
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-400 text-[11px]">
-                      {incident.timestamp}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectIncident(incident);
-                        }}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 font-sans text-xs font-medium transition-all"
-                        aria-label="Inspect incident"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        Inspect
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
+                    )}
+                  </td>
+                  <td className="py-3.5 px-4 hidden sm:table-cell text-slate-400">
+                    <div>{inc.destination_ip}</div>
+                    <div className="text-[10px] text-cyan-400/80">
+                      Port: {inc.port} ({inc.protocol || 'TCP'})
+                    </div>
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <span className="font-semibold text-slate-200">
+                      {inc.attack_type}
+                    </span>
+                    {inc.confidence && (
+                      <div className="text-[10px] text-slate-500 font-mono">
+                        {(inc.confidence * 100).toFixed(0)}% Conf
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white text-sm">
+                        {inc.risk_score}
+                      </span>
+                      <div className="w-12 bg-slate-800 rounded-full h-1.5 overflow-hidden hidden sm:block">
+                        <div
+                          className={`h-1.5 rounded-full ${
+                            inc.risk_score > 80
+                              ? 'bg-rose-500'
+                              : inc.risk_score > 60
+                              ? 'bg-orange-500'
+                              : inc.risk_score > 30
+                              ? 'bg-amber-500'
+                              : 'bg-emerald-500'
+                          }`}
+                          style={{ width: `${Math.min(100, inc.risk_score)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <StatusBadge severity={inc.severity} />
+                  </td>
+                  <td className="py-3.5 px-4 hidden md:table-cell text-slate-400 text-[11px]">
+                    {inc.timestamp?.replace('T', ' ').substring(0, 19)}
+                  </td>
+                  <td className="py-3.5 px-4 text-right">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectIncident && onSelectIncident(inc);
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/80 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-semibold border border-slate-700/60 group-hover:border-cyan-500/30 transition-all font-sans"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Inspect</span>
+                    </button>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>

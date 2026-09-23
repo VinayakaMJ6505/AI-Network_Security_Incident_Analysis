@@ -15,32 +15,32 @@ import {
 import { PieChart as PieIcon, BarChart2 } from 'lucide-react';
 
 const CUSTOM_COLORS = [
-  '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444',
-  '#06b6d4', '#ec4899', '#f97316', '#e11d48', '#9333ea'
+  '#06b6d4', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444',
+  '#10b981', '#ec4899', '#f97316', '#e11d48', '#9333ea'
 ];
 
 export default function AttackDistributionChart({ data = [] }) {
-  const [chartType, setChartType] = useState('bar'); // 'bar' | 'donut'
+  const [chartType, setChartType] = useState('bar');
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-[#111726]/80 p-5 backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-4">
+    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-md shadow-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-800/80">
         <div>
-          <h3 className="text-sm font-bold text-white tracking-wide">
+          <h3 className="text-sm sm:text-base font-bold text-white tracking-wide font-display">
             Attack Distribution (UNSW-NB15 Categories)
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-400 mt-0.5 font-mono">
             Breakdown of classified network events by attack type
           </p>
         </div>
 
-        <div className="flex items-center bg-slate-900 rounded-lg p-1 border border-slate-800">
+        <div className="flex items-center bg-slate-950/80 rounded-xl p-1 border border-slate-800 self-start sm:self-auto">
           <button
             onClick={() => setChartType('bar')}
-            className={`p-1.5 rounded text-xs transition-colors ${
+            className={`p-1.5 rounded-lg text-xs transition-all ${
               chartType === 'bar'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                : 'text-slate-400 hover:text-white border border-transparent'
             }`}
             title="Bar Chart"
           >
@@ -48,10 +48,10 @@ export default function AttackDistributionChart({ data = [] }) {
           </button>
           <button
             onClick={() => setChartType('donut')}
-            className={`p-1.5 rounded text-xs transition-colors ${
+            className={`p-1.5 rounded-lg text-xs transition-all ${
               chartType === 'donut'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                : 'text-slate-400 hover:text-white border border-transparent'
             }`}
             title="Donut Chart"
           >
@@ -60,85 +60,93 @@ export default function AttackDistributionChart({ data = [] }) {
         </div>
       </div>
 
-      <div className="h-64 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          {chartType === 'bar' ? (
-            <BarChart
-              data={data}
-              margin={{ top: 10, right: 10, left: -10, bottom: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-              <XAxis
-                dataKey="category"
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
-                angle={-25}
-                textAnchor="end"
-                interval={0}
-              />
-              <YAxis
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
-                tickFormatter={(val) => (val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val)}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0f172a',
-                  borderColor: '#334155',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '12px',
-                }}
-                formatter={(value) => [`${value.toLocaleString()} events`, 'Count']}
-              />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.color || CUSTOM_COLORS[index % CUSTOM_COLORS.length]}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          ) : (
-            <PieChart>
-              <Pie
+      <div className="h-64 sm:h-72 w-full">
+        {data.length === 0 ? (
+          <div className="h-full flex items-center justify-center text-xs text-slate-500 font-mono">
+            No telemetry data available for distribution.
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            {chartType === 'bar' ? (
+              <BarChart
                 data={data}
-                cx="50%"
-                cy="50%"
-                innerRadius={55}
-                outerRadius={85}
-                paddingAngle={3}
-                dataKey="count"
-                nameKey="category"
+                margin={{ top: 10, right: 10, left: -20, bottom: 25 }}
               >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.color || CUSTOM_COLORS[index % CUSTOM_COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0f172a',
-                  borderColor: '#334155',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '12px',
-                }}
-                formatter={(val, name, props) => [
-                  `${val.toLocaleString()} (${props.payload.percentage || ''}%)`,
-                  name
-                ]}
-              />
-              <Legend
-                wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
-                formatter={(val) => <span className="text-slate-300">{val}</span>}
-              />
-            </PieChart>
-          )}
-        </ResponsiveContainer>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                <XAxis
+                  dataKey="category"
+                  stroke="#64748b"
+                  fontSize={10}
+                  tickLine={false}
+                  angle={-30}
+                  textAnchor="end"
+                  interval={0}
+                />
+                <YAxis
+                  stroke="#64748b"
+                  fontSize={10}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#090d16',
+                    border: '1px solid rgba(6,182,212,0.3)',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontFamily: 'JetBrains Mono',
+                    boxShadow: '0 0 15px rgba(6,182,212,0.15)',
+                  }}
+                  formatter={(val, name, item) => [`${val} (${item.payload.percentage || 0}%)`, 'Events']}
+                />
+                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                  {data.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color || CUSTOM_COLORS[index % CUSTOM_COLORS.length]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            ) : (
+              <PieChart>
+                <Pie
+                  data={data}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={85}
+                  paddingAngle={3}
+                  dataKey="count"
+                  nameKey="category"
+                >
+                  {data.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color || CUSTOM_COLORS[index % CUSTOM_COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#090d16',
+                    border: '1px solid rgba(6,182,212,0.3)',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontFamily: 'JetBrains Mono',
+                  }}
+                  formatter={(val, name, item) => [`${val} (${item.payload.percentage || 0}%)`, item.payload.category]}
+                />
+                <Legend
+                  formatter={(value) => <span className="text-slate-300 text-[10px] font-mono">{value}</span>}
+                  layout="horizontal"
+                  verticalAlign="bottom"
+                  align="center"
+                />
+              </PieChart>
+            )}
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

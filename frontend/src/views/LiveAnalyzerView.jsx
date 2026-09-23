@@ -11,6 +11,10 @@ import {
   ShieldAlert,
   RotateCcw,
   Zap,
+  CheckCircle2,
+  AlertCircle,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 export default function LiveAnalyzerView({ onSelectIncident }) {
@@ -32,12 +36,15 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [activePreset, setActivePreset] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   const loadPreset = (preset) => {
-    setFormData({
-      ...formData,
+    setActivePreset(preset.name);
+    setFormData((prev) => ({
+      ...prev,
       ...preset.params,
-    });
+    }));
   };
 
   const handleInputChange = (e) => {
@@ -61,47 +68,72 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
     }
   };
 
+  const handleCopyReport = () => {
+    if (!result?.ai_explanation) return;
+    const text = `SECURITY INCIDENT REPORT\nAttack: ${result.attack_type}\nConfidence: ${(result.confidence * 100).toFixed(1)}%\nRisk Score: ${result.risk_score} (${result.severity})\nSummary: ${result.ai_explanation.summary || result.ai_explanation.incident_summary}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="space-y-6">
-      {/* Title */}
-      <div className="p-5 rounded-2xl bg-[#111726]/80 border border-slate-800 backdrop-blur-sm">
-        <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-          <Radio className="w-5 h-5 text-blue-400" />
-          Live Event Analyzer (POST /api/analyze)
-        </h2>
-        <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-          Simulate or inject raw network traffic telemetry into the XGBoost classification and Generative AI risk pipeline in real time.
-        </p>
+      {/* Title & Preset Bar */}
+      <div className="p-5 sm:p-6 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-slate-900/90 via-[#0d1424]/90 to-slate-900/90 backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.06)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2.5 font-display">
+              <Radio className="w-5 h-5 text-cyan-400 animate-pulse" />
+              Live Event Analyzer (POST /api/analyze)
+            </h2>
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Inject live network traffic telemetry into the XGBoost classification engine and automated Generative AI incident analysis pipeline.
+            </p>
+          </div>
+          <span className="self-start sm:self-auto px-2.5 py-1 rounded-full text-[10px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+            REAL-TIME INFERENCE
+          </span>
+        </div>
 
-        {/* Presets */}
-        <div className="mt-4 pt-4 border-t border-slate-800 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
+        {/* Tactical Scenario Presets */}
+        <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1 font-mono">
             <Zap className="w-3.5 h-3.5 text-amber-400" /> Attack Scenarios:
           </span>
-          {ATTACK_PRESETS.map((preset) => (
-            <button
-              key={preset.name}
-              type="button"
-              onClick={() => loadPreset(preset)}
-              className="px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
-            >
-              {preset.name}
-            </button>
-          ))}
+          {ATTACK_PRESETS.map((preset) => {
+            const isSelected = activePreset === preset.name;
+            return (
+              <button
+                key={preset.name}
+                type="button"
+                onClick={() => loadPreset(preset)}
+                className={`px-3 py-1.5 text-xs rounded-xl font-medium transition-all duration-200 border ${
+                  isSelected
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                    : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {preset.name}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Form Inputs (Left) */}
-        <div className="lg:col-span-7 rounded-2xl border border-slate-800 bg-[#111726]/80 p-5 backdrop-blur-sm">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-cyan-400" /> Network Flow Parameters
-          </h3>
+        <div className="lg:col-span-7 rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-md">
+          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-800/80">
+            <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 font-mono">
+              <Cpu className="w-4 h-4 text-cyan-400" /> Network Flow Parameters
+            </h3>
+            <span className="text-[10px] font-mono text-slate-400">UNSW-NB15 SCHEMA</span>
+          </div>
 
           <form onSubmit={handleAnalyze} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Source IP
                 </label>
                 <input
@@ -109,13 +141,13 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                   name="source_ip"
                   value={formData.source_ip}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Destination IP
                 </label>
                 <input
@@ -123,13 +155,13 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                   name="destination_ip"
                   value={formData.destination_ip}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Target Port
                 </label>
                 <input
@@ -137,68 +169,89 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                   name="port"
                   value={formData.port}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Protocol (proto)
                 </label>
                 <select
                   name="proto"
                   value={formData.proto}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                 >
                   <option value="tcp">TCP</option>
                   <option value="udp">UDP</option>
                   <option value="icmp">ICMP</option>
+                  <option value="arp">ARP</option>
+                  <option value="ospf">OSPF</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Service
                 </label>
-                <select
+                <input
+                  type="text"
                   name="service"
                   value={formData.service}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="http">http (Web)</option>
-                  <option value="ssh">ssh (Remote Admin)</option>
-                  <option value="ftp">ftp (File Transfer)</option>
-                  <option value="dns">dns (Domain Lookup)</option>
-                  <option value="smb">smb (File Sharing)</option>
-                  <option value="https">https (Secure Web)</option>
-                  <option value="shell">shell (Reverse Shell)</option>
-                  <option value="-">- (None/Generic)</option>
-                </select>
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
+                />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Connection State
                 </label>
                 <select
                   name="state"
                   value={formData.state}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                 >
                   <option value="CON">CON (Connected)</option>
-                  <option value="INT">INT (Interrupted / SYN)</option>
                   <option value="FIN">FIN (Finished)</option>
-                  <option value="REQ">REQ (Request)</option>
+                  <option value="INT">INT (Interrupted)</option>
+                  <option value="REQ">REQ (Requested)</option>
                   <option value="RST">RST (Reset)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
+                  Flow Duration (sec)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  name="dur"
+                  value={formData.dur}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
+                  Source Load (sload bps)
+                </label>
+                <input
+                  type="number"
+                  name="sload"
+                  value={formData.sload}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Source Bytes (sbytes)
                 </label>
                 <input
@@ -206,12 +259,12 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                   name="sbytes"
                   value={formData.sbytes}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Destination Bytes (dbytes)
                 </label>
                 <input
@@ -219,12 +272,12 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                   name="dbytes"
                   value={formData.dbytes}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Source Packets (spkts)
                 </label>
                 <input
@@ -232,12 +285,12 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                   name="spkts"
                   value={formData.spkts}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
                   Failed Auth Attempts
                 </label>
                 <input
@@ -245,16 +298,16 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                   name="failed_attempts"
                   value={formData.failed_attempts}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
                 />
               </div>
             </div>
 
-            <div className="pt-2 flex items-center justify-end gap-3">
+            <div className="pt-3 flex items-center justify-end gap-3">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold tracking-wide shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 text-xs font-bold tracking-wide shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all disabled:opacity-50 active:scale-95"
               >
                 <Play className="w-4 h-4 fill-current" />
                 {isLoading ? 'Running Inference...' : 'Analyze Event'}
@@ -264,76 +317,102 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
         </div>
 
         {/* Inference Results (Right) */}
-        <div className="lg:col-span-5 rounded-2xl border border-slate-800 bg-[#111726]/80 p-5 backdrop-blur-sm">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-rose-400" /> AI Classification Output
-          </h3>
+        <div className="lg:col-span-5 rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-md">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/80">
+            <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 font-mono">
+              <ShieldAlert className="w-4 h-4 text-rose-400" /> AI Classification Output
+            </h3>
+            {result && (
+              <button
+                onClick={handleCopyReport}
+                className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? 'Copied' : 'Copy Report'}
+              </button>
+            )}
+          </div>
 
           {!result ? (
             <div className="h-96 flex flex-col items-center justify-center text-center p-6 border border-dashed border-slate-800 rounded-xl text-slate-500">
-              <Play className="w-10 h-10 mb-3 opacity-30 text-blue-400" />
-              <p className="text-xs font-medium">No event analyzed yet.</p>
-              <p className="text-[11px] text-slate-500 mt-1 max-w-xs">
-                Select an attack scenario preset or enter network flow attributes, then click "Analyze Event".
+              <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3 text-cyan-400">
+                <Play className="w-6 h-6 fill-current opacity-70 ml-0.5" />
+              </div>
+              <p className="text-xs font-medium text-slate-400">No event analyzed yet.</p>
+              <p className="text-[11px] text-slate-500 mt-1 max-w-xs leading-relaxed">
+                Select an attack scenario preset above or configure custom flow attributes, then click "Analyze Event".
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Classification Cards */}
+              {/* Classification Summary Cards */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800/80 shadow-sm">
+                  <span className="text-[10px] uppercase font-mono font-semibold text-slate-400 block">
                     Prediction
                   </span>
-                  <span className="text-lg font-bold text-white mt-1 block">
+                  <span className="text-lg font-extrabold text-white mt-1 block font-display">
                     {result.attack_type}
                   </span>
-                  <span className="text-[10px] text-blue-400 font-mono">
+                  <div className="mt-2 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-cyan-400 h-1.5 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.round(result.confidence * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-cyan-400 font-mono block mt-1">
                     {(result.confidence * 100).toFixed(1)}% Confidence
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800/80 shadow-sm">
+                  <span className="text-[10px] uppercase font-mono font-semibold text-slate-400 block">
                     Risk Assessment
                   </span>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-lg font-bold text-white font-mono">
+                    <span className="text-2xl font-extrabold text-white font-mono">
                       {result.risk_score}
                     </span>
                     <StatusBadge severity={result.severity} />
                   </div>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                  <span className="text-[10px] text-slate-400 block mt-1 font-mono">
                     Score: 0–100 Scale
                   </span>
                 </div>
               </div>
 
               {/* GenAI Report */}
-              <div className="p-4 rounded-xl border border-blue-900/40 bg-gradient-to-br from-[#0c162d] to-[#111a33]">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                  <span className="text-xs font-bold text-blue-300 uppercase tracking-wider">
-                    Generative AI Explanation
+              <div className="p-4 rounded-xl border border-cyan-500/30 bg-gradient-to-br from-[#0c162d] via-slate-900 to-[#111a33] shadow-[0_0_20px_rgba(6,182,212,0.08)]">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+                    <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider font-mono">
+                      Generative AI Explanation
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-mono text-cyan-400/80 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">
+                    SOC ASSIST
                   </span>
                 </div>
                 <p className="text-xs text-slate-200 leading-relaxed mb-3">
-                  {result.ai_explanation?.summary}
+                  {result.ai_explanation?.summary || result.ai_explanation?.incident_summary}
                 </p>
 
-                <div className="text-[11px] text-slate-300 mb-2">
-                  <strong className="text-slate-400 block mb-0.5">Evidence:</strong>
-                  {result.ai_explanation?.evidence}
+                <div className="text-[11px] text-slate-300 mb-3 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 font-mono">
+                  <strong className="text-cyan-400 block mb-1">Telemetry Evidence:</strong>
+                  {Array.isArray(result.ai_explanation?.evidence)
+                    ? result.ai_explanation.evidence.join(' • ')
+                    : String(result.ai_explanation?.evidence || 'Classified via XGBoost feature weights.')}
                 </div>
 
                 <div className="pt-2 border-t border-slate-800/80">
-                  <strong className="text-[11px] text-slate-400 block mb-1">
-                    Recommended Actions:
+                  <strong className="text-[11px] text-slate-300 block mb-1.5 font-mono">
+                    Recommended SOC Actions:
                   </strong>
-                  <ul className="space-y-1 text-[11px] text-slate-300">
-                    {result.ai_explanation?.recommendations?.map((rec, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-blue-400 font-bold">•</span>
+                  <ul className="space-y-1.5 text-[11px] text-slate-300">
+                    {(result.ai_explanation?.recommendations || result.ai_explanation?.investigation_recommendations || []).map((rec, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 mt-0.5 shrink-0" />
                         <span>{rec}</span>
                       </li>
                     ))}
