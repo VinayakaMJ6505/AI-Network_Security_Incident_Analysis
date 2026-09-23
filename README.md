@@ -873,11 +873,11 @@ The project does not intentionally perform attacks against external systems.
 - [ ] Model comparison
 - [ ] NLP log analysis
 - [ ] PySpark analytics
-- [ ] Risk scoring
+- [x] Risk scoring
 - [ ] Generative AI integration
 - [ ] MongoDB integration
 - [ ] FastAPI backend
-- [ ] React dashboard
+- [x] React dashboard
 - [ ] Cloud deployment
 - [ ] Testing and evaluation
 - [ ] Final documentation

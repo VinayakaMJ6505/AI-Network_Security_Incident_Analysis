@@ -30,5 +30,11 @@ data/**/*.csv
 .vscode/
 .idea/
 
+# Node / Frontend
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+
 # Windows
 Thumbs.db
