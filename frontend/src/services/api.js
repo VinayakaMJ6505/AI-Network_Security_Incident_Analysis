@@ -1,239 +1,123 @@
-import { INITIAL_DASHBOARD_STATS, INITIAL_INCIDENTS } from './mockData';
-import { calculateRiskScore } from '../utils/riskCalculator';
-import { extractLogEntities } from '../utils/logExtractor';
+/**
+ * Real API Client for AI-Powered Network Security Incident Analysis Backend.
+ * Connects directly to the FastAPI backend at /api endpoints.
+ * All operations communicate with real backend services (ML XGBoost, NLP, Risk, GenAI, MongoDB).
+ */
 
 const API_BASE_URL = '/api';
 
-// In-memory incidents store for simulation mode
-let incidentsStore = [...INITIAL_INCIDENTS];
-
-// Helper to check if backend is online
+/**
+ * Checks if the FastAPI backend service is online.
+ * GET /api/health
+ */
 export async function checkBackendHealth() {
   try {
-    const res = await fetch(`${API_BASE_URL}/dashboard`, { method: 'GET' });
-    return res.ok;
+    const res = await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
+    if (res.ok) {
+      const data = await res.json();
+      return data.status === 'healthy';
+    }
+    return false;
   } catch (err) {
     return false;
   }
 }
 
 /**
+ * Retrieves aggregate security metrics and charts for the SOC dashboard.
  * GET /api/dashboard
  */
 export async function fetchDashboardStats() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/dashboard`);
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (e) {
-    // Fall back to simulation data
+  const res = await fetch(`${API_BASE_URL}/dashboard`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch dashboard stats: HTTP ${res.status}`);
   }
-  return INITIAL_DASHBOARD_STATS;
+  return await res.json();
 }
 
 /**
+ * Retrieves detected security incidents from the database.
  * GET /api/incidents
  */
-export async function fetchIncidents() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/incidents`);
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (e) {
-    // Fall back
+export async function fetchIncidents(params = {}) {
+  const query = new URLSearchParams();
+  if (params.severity) query.append('severity', params.severity);
+  if (params.attack_type) query.append('attack_type', params.attack_type);
+  if (params.limit) query.append('limit', params.limit);
+
+  const url = `${API_BASE_URL}/incidents${query.toString() ? `?${query.toString()}` : ''}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch incidents: HTTP ${res.status}`);
   }
-  return incidentsStore;
+  return await res.json();
 }
 
 /**
+ * Retrieves full details and telemetry of a single incident.
  * GET /api/incidents/{id}
  */
 export async function fetchIncidentById(id) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/incidents/${id}`);
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (e) {
-    // Fall back
+  const res = await fetch(`${API_BASE_URL}/incidents/${id}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch incident ${id}: HTTP ${res.status}`);
   }
-  return incidentsStore.find((inc) => inc.id === id) || null;
+  return await res.json();
 }
 
 /**
+ * Runs live ML inference, entity extraction, risk assessment, and GenAI explanation.
  * POST /api/analyze
  */
 export async function analyzeEvent(eventData) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/analyze`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventData),
-    });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (e) {
-    // Fall back
+  const res = await fetch(`${API_BASE_URL}/analyze`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(eventData),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Analysis failed: HTTP ${res.status}`);
   }
 
-  // Local simulation of ML inference + Risk score + GenAI
-  return simulateAnalysis(eventData);
+  return await res.json();
 }
 
 /**
+ * Uploads security logs or dataset files for automated parsing and incident classification.
  * POST /api/log/upload
  */
 export async function uploadLog(rawLogText) {
-  const extracted = extractLogEntities(rawLogText);
+  const res = await fetch(`${API_BASE_URL}/log/upload`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ log: rawLogText }),
+  });
 
-  try {
-    const res = await fetch(`${API_BASE_URL}/log/upload`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ log: rawLogText, entities: extracted }),
-    });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (e) {
-    // Fall back
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Log upload failed: HTTP ${res.status}`);
   }
 
-  // Create simulated incident from log
-  let attackType = 'Exploits';
-  if (extracted.keywords?.includes('SQL injection')) attackType = 'Exploits';
-  else if (extracted.failed_attempts > 10) attackType = 'Exploits';
-  else if (extracted.port === 4444) attackType = 'Shellcode';
-  else if (extracted.protocol === 'UDP' && extracted.port === 53) attackType = 'Generic';
-
-  const confidence = 0.92;
-  const { score, severity } = calculateRiskScore({
-    attackType,
-    confidence,
-    port: extracted.port || 80,
-    failedAttempts: extracted.failed_attempts || 0,
-  });
-
-  const aiExplanation = await generateAIExplanation({
-    attack_type: attackType,
-    confidence,
-    risk_score: score,
-    source_ip: extracted.source_ip || 'Unknown',
-    port: extracted.port || 80,
-    protocol: extracted.protocol || 'TCP',
-    failed_attempts: extracted.failed_attempts,
-  });
-
-  const newIncident = {
-    id: `INC-LOG-${Date.now().toString().slice(-4)}`,
-    source_ip: extracted.source_ip || '192.168.1.50',
-    destination_ip: extracted.destination_ip || '10.0.0.10',
-    port: extracted.port || 80,
-    protocol: extracted.protocol || 'TCP',
-    attack_type: attackType,
-    confidence,
-    risk_score: score,
-    severity,
-    timestamp: extracted.timestamp || new Date().toISOString().replace('T', ' ').substring(0, 19),
-    extracted_entities: extracted,
-    ai_explanation: aiExplanation,
-  };
-
-  incidentsStore = [newIncident, ...incidentsStore];
-
-  return {
-    success: true,
-    extracted_entities: extracted,
-    incident: newIncident,
-  };
+  return await res.json();
 }
 
 /**
+ * Generates an AI-powered SOC incident explanation with summary, evidence, and remediation steps.
  * POST /api/explain
  */
 export async function generateAIExplanation(incidentData) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/explain`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(incidentData),
-    });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (e) {
-    // Fall back
-  }
-
-  // Dynamic simulation of GenAI explanation
-  const attack = incidentData.attack_type || 'Generic';
-  const targetPort = incidentData.port || 80;
-  const src = incidentData.source_ip || 'External Node';
-
-  return {
-    summary: `GenAI Incident Report: Detected ${attack} activity originating from ${src} targeting port ${targetPort} (${incidentData.protocol || 'TCP'}). High behavioral anomalies observed.`,
-    evidence: `Classification confidence ${Math.round((incidentData.confidence || 0.9) * 100)}% with risk score ${incidentData.risk_score || 75}/100. Matching signatures against UNSW-NB15 classifier.`,
-    potential_impact: `Risk of unauthorized access, service interruption, or privilege escalation across the affected network segment.`,
-    recommendations: [
-      `Block incoming traffic from IP ${src} at perimeter router and host firewall.`,
-      `Review server logs for port ${targetPort} to determine if any payload succeeded.`,
-      `Verify integrity of host configuration files and execute secondary malware scan.`,
-      `Document incident resolution in ticket system and notify security operations team.`
-    ],
-  };
-}
-
-function simulateAnalysis(eventData) {
-  let attackType = 'Normal';
-  let confidence = 0.96;
-
-  // Heuristic based on UNSW-NB15 typical distributions
-  if (eventData.sbytes > 100000 || eventData.sload > 10000000) {
-    attackType = 'DoS';
-    confidence = 0.98;
-  } else if (eventData.service === 'ssh' && (eventData.failed_attempts > 5 || eventData.spkts > 80)) {
-    attackType = 'Exploits';
-    confidence = 0.94;
-  } else if (eventData.port === 4444 || eventData.service === 'shell') {
-    attackType = 'Shellcode';
-    confidence = 0.97;
-  } else if (eventData.service === 'smb' && eventData.state === 'REQ') {
-    attackType = 'Reconnaissance';
-    confidence = 0.91;
-  } else if (eventData.dur > 10 && eventData.dbytes < 100) {
-    attackType = 'Fuzzers';
-    confidence = 0.89;
-  }
-
-  const { score, severity } = calculateRiskScore({
-    attackType,
-    confidence,
-    port: eventData.port || 80,
-    failedAttempts: eventData.failed_attempts || 0,
+  const res = await fetch(`${API_BASE_URL}/explain`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(incidentData),
   });
 
-  const explanation = {
-    summary: `Simulated XGBoost Inference: Traffic pattern evaluated as ${attackType} with ${(confidence * 100).toFixed(1)}% confidence.`,
-    evidence: `Evaluation of ${eventData.proto || 'TCP'} session over service ${eventData.service || 'unknown'}, state ${eventData.state || 'CON'}.`,
-    potential_impact: attackType === 'Normal' ? 'No impact detected.' : 'Elevated risk of service disruption or intrusion attempt.',
-    recommendations: attackType === 'Normal'
-      ? ['Allow traffic and continue standard telemetry monitoring.']
-      : [
-          `Quarantine origin IP address ${eventData.source_ip || 'source'}.`,
-          `Validate firewall state table for port ${eventData.port || 80}.`,
-          `Trigger deep packet inspection on subsequent flows.`
-        ]
-  };
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `AI explanation generation failed: HTTP ${res.status}`);
+  }
 
-  return {
-    attack_type: attackType,
-    confidence,
-    risk_score: score,
-    severity,
-    ai_explanation: explanation,
-    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-  };
+  return await res.json();
 }

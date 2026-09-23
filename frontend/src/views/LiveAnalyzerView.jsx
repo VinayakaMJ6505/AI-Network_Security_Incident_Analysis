@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ATTACK_PRESETS } from '../services/mockData';
+import { ATTACK_PRESETS } from '../utils/presets';
 import { analyzeEvent } from '../services/api';
 import StatusBadge from '../components/StatusBadge';
 import {

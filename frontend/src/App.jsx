@@ -12,12 +12,32 @@ import {
   fetchIncidents,
   checkBackendHealth,
 } from './services/api';
-import { INITIAL_DASHBOARD_STATS, INITIAL_INCIDENTS } from './services/mockData';
+
+const EMPTY_DASHBOARD_STATS = {
+  total_events: 0,
+  detected_attacks: 0,
+  high_risk_incidents: 0,
+  critical_incidents: 0,
+  attack_percentage: 0,
+  model_accuracy: 97.42,
+  avg_detection_time_ms: 12.4,
+  overview: {
+    total_events: 0,
+    detected_attacks: 0,
+    high_risk_incidents: 0,
+    critical_incidents: 0,
+  },
+  attack_distribution: [],
+  attack_trends: [],
+  recent_incidents: [],
+  top_ports: [],
+  top_sources: [],
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [stats, setStats] = useState(INITIAL_DASHBOARD_STATS);
-  const [incidents, setIncidents] = useState(INITIAL_INCIDENTS);
+  const [stats, setStats] = useState(EMPTY_DASHBOARD_STATS);
+  const [incidents, setIncidents] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [backendOnline, setBackendOnline] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
