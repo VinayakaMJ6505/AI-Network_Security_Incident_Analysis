@@ -133,43 +133,46 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
           <form onSubmit={handleAnalyze} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
-                  Source IP
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5 font-mono flex items-center justify-between">
+                  <span>Source IP</span>
+                  <span className="text-[10px] text-cyan-400 font-mono">FLOW ORIGIN</span>
                 </label>
                 <input
                   type="text"
                   name="source_ip"
                   value={formData.source_ip}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white font-mono focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(0,243,255,0.2)] focus:outline-none transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
-                  Destination IP
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5 font-mono flex items-center justify-between">
+                  <span>Destination IP</span>
+                  <span className="text-[10px] text-purple-400 font-mono">TARGET ASSET</span>
                 </label>
                 <input
                   type="text"
                   name="destination_ip"
                   value={formData.destination_ip}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white font-mono focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(0,243,255,0.2)] focus:outline-none transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5 font-mono">
-                  Target Port
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5 font-mono flex items-center justify-between">
+                  <span>Target Port</span>
+                  <span className="text-[10px] text-amber-400 font-mono">SERVICE PORT</span>
                 </label>
                 <input
                   type="number"
                   name="port"
                   value={formData.port}
                   onChange={handleInputChange}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white font-mono focus:border-cyan-500 focus:outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white font-mono focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(0,243,255,0.2)] focus:outline-none transition-all"
                   required
                 />
               </div>
@@ -380,6 +383,49 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                   </span>
                 </div>
               </div>
+
+              {/* Multi-Class Probability Radar / Breakdown */}
+              {result.probabilities && Object.keys(result.probabilities).length > 0 && (
+                <div className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] uppercase font-mono font-bold text-slate-400">
+                      XGBoost Multi-Class Probability Distribution
+                    </span>
+                    <span className="text-[9px] font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
+                      10 CLASSES
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {Object.entries(result.probabilities)
+                      .sort(([, a], [, b]) => b - a)
+                      .slice(0, 5)
+                      .map(([cls, prob]) => {
+                        const pct = Math.round(prob * 100);
+                        const isTop = cls === result.attack_type;
+                        return (
+                          <div key={cls} className="space-y-0.5">
+                            <div className="flex justify-between text-[11px] font-mono">
+                              <span className={isTop ? 'text-cyan-300 font-bold' : 'text-slate-400'}>
+                                {cls} {isTop && '★'}
+                              </span>
+                              <span className={isTop ? 'text-cyan-400 font-bold' : 'text-slate-500'}>
+                                {pct}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                              <div
+                                className={`h-1 rounded-full ${
+                                  isTop ? 'bg-cyan-400' : 'bg-slate-700'
+                                }`}
+                                style={{ width: `${Math.max(pct, 2)}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
 
               {/* GenAI Report */}
               <div className="p-4 rounded-xl border border-cyan-500/30 bg-gradient-to-br from-[#0c162d] via-slate-900 to-[#111a33] shadow-[0_0_20px_rgba(6,182,212,0.08)]">
