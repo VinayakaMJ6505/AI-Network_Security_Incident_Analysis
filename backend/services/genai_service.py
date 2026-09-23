@@ -204,9 +204,11 @@ class GenAIService:
             "risk_score": risk_score,
             "severity": severity,
             "incident_summary": summary,
+            "summary": summary,
             "evidence": evidence,
             "potential_impact": impact,
             "investigation_recommendations": recommendations,
+            "recommendations": recommendations,
             "generated_at": datetime.utcnow().isoformat() + "Z",
             "provider": "AI-Cybersecurity-Knowledge-Engine"
         }
@@ -236,6 +238,10 @@ Respond strictly with valid JSON with keys:
         content["attack_type"] = data.get("attack_type")
         content["risk_score"] = data.get("risk_score")
         content["severity"] = data.get("severity")
+        if "incident_summary" in content and "summary" not in content:
+            content["summary"] = content["incident_summary"]
+        if "investigation_recommendations" in content and "recommendations" not in content:
+            content["recommendations"] = content["investigation_recommendations"]
         content["generated_at"] = datetime.utcnow().isoformat() + "Z"
         content["provider"] = "Groq (Llama-3.3-70b)"
         return content
@@ -265,6 +271,10 @@ Respond strictly with valid JSON with keys:
         content["attack_type"] = data.get("attack_type")
         content["risk_score"] = data.get("risk_score")
         content["severity"] = data.get("severity")
+        if "incident_summary" in content and "summary" not in content:
+            content["summary"] = content["incident_summary"]
+        if "investigation_recommendations" in content and "recommendations" not in content:
+            content["recommendations"] = content["investigation_recommendations"]
         content["generated_at"] = datetime.utcnow().isoformat() + "Z"
         content["provider"] = "OpenAI (GPT-4o-mini)"
         return content
