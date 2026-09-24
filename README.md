@@ -1,6 +1,12 @@
 # 🛡️ AI-Powered Network Security Incident Analysis System
 
-> 📖 **Full Codebase Documentation & Architecture Manual**: Detailed line-by-line documentation, source code walkthroughs, capabilities, and system limitations ("What It Does & What It Does NOT Do") for every component are available in [**`CODEBASE_DOCUMENTATION.md`**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/CODEBASE_DOCUMENTATION.md).
+> 📖 **Comprehensive System Documentation Suite**: Dedicated architectural blueprints, Data Flow Diagrams (Level 0, 1, 2), UML Use Case specifications, and the exhaustive source code manual are available in the [**`docs/`**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/) directory:
+> - 📋 [**Project Abstract & Comprehensive Overview**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/ABSTRACT_AND_OVERVIEW.md)
+> - 🏗️ [**System Architecture & Engineering Specifications**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/SYSTEM_ARCHITECTURE.md)
+> - 🔄 [**Process Flow & Data Flow Diagrams (DFD)**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/PROCESS_FLOW_AND_DFD.md)
+> - 🎯 [**Use Case Analysis & Actor Specifications**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/USE_CASES.md)
+> - 📚 [**Full Codebase Documentation & Implementation Manual**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/CODEBASE_DOCUMENTATION.md)
+> - 🗂️ [**Documentation Index & Knowledge Base**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/README.md)
 
 An AI-powered cybersecurity platform designed to detect, classify, analyze, and explain network security incidents using **Artificial Intelligence, Machine Learning, Big Data Analytics, Natural Language Processing, and Generative AI**.
 
@@ -67,6 +73,8 @@ The main objectives of the project are:
 ---
 
 # 🏗️ System Architecture
+
+> 📐 **Full Architectural Blueprints & Diagrams**: Complete high-resolution Mermaid topology diagrams, micro-services interaction maps, ML data pipelines, containerization schemas, and graceful degradation paths are documented in [**`docs/SYSTEM_ARCHITECTURE.md`**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/SYSTEM_ARCHITECTURE.md). For Level 0–2 Data Flow Diagrams and UML sequence flows, see [**`docs/PROCESS_FLOW_AND_DFD.md`**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/PROCESS_FLOW_AND_DFD.md). For formal actor specifications and UML use case diagrams, see [**`docs/USE_CASES.md`**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/docs/USE_CASES.md).
 
 ```text
                   ┌──────────────────────────┐
@@ -686,9 +694,12 @@ AI-Powered-Network-Security-Incident-Analysis/
 │   └── package.json
 │
 ├── docs/
-│   ├── architecture/
-│   ├── screenshots/
-│   └── project-report/
+│   ├── README.md                     # Documentation Hub & Navigation Guide
+│   ├── ABSTRACT_AND_OVERVIEW.md      # Academic Abstract, Executive Summary & Scope
+│   ├── SYSTEM_ARCHITECTURE.md        # Multi-Tier Architecture, Cloud Topology & ML Pipeline
+│   ├── PROCESS_FLOW_AND_DFD.md       # Level 0, 1, 2 DFDs & UML Sequence Diagrams
+│   ├── USE_CASES.md                  # Actor Personas & Formal Use Case Specifications
+│   └── CODEBASE_DOCUMENTATION.md     # Line-by-Line Codebase Reference & Technical Manual
 │
 ├── requirements.txt
 ├── .gitignore
