@@ -1,0 +1,158 @@
+# ============================================================
+# GitHub Actions CI/CD — deploy to GCP Cloud Run
+# Triggers: push to main, or manual dispatch
+# ============================================================
+name: Deploy to GCP Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "production"
+        type: choice
+        options: [production, staging]
+
+env:
+  REGION: us-central1
+  REPO: ai-security
+  BACKEND_SERVICE: ai-security-backend
+  FRONTEND_SERVICE: ai-security-frontend
+
+jobs:
+  # ── 1. Test ─────────────────────────────────────────────────
+  test:
+    name: Run Test Suites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run Pytest
+        env:
+          MONGODB_URI: "mongodb://localhost:27017"
+          MONGODB_DB_NAME: "test_db"
+        run: |
+          python -m pytest backend/tests/ -q --tb=short \
+            --ignore=backend/tests/verify_live_e2e_workflow.py
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run Vitest
+        working-directory: frontend
+        run: npm run test
+
+  # ── 2. Build & Deploy ────────────────────────────────────────
+  deploy:
+    name: Build & Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      id-token: write   # Required for Workload Identity Federation
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Authenticate to GCP via Workload Identity Federation (keyless)
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      # ── Backend ──────────────────────────────────────────────
+      - name: Build & push backend image
+        run: |
+          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/backend:${{ github.sha }}"
+          docker build -f Dockerfile.backend -t "$IMAGE" -t \
+            "${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/backend:latest" .
+          docker push --all-tags \
+            "${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/backend"
+
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.BACKEND_SERVICE }} \
+            --image="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/backend:${{ github.sha }}" \
+            --region=${{ env.REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=2Gi \
+            --cpu=2 \
+            --min-instances=0 \
+            --max-instances=5 \
+            --set-env-vars="MONGODB_URI=${{ secrets.MONGODB_URI }},MONGODB_DB_NAME=incident_db,GROQ_API_KEY=${{ secrets.GROQ_API_KEY }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+
+      - name: Get backend URL
+        id: backend-url
+        run: |
+          URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} \
+            --region=${{ env.REGION }} --format="value(status.url)")
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Backend deployed at: $URL"
+
+      # ── Frontend ─────────────────────────────────────────────
+      - name: Build & push frontend image
+        run: |
+          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/frontend:${{ github.sha }}"
+          docker build -f Dockerfile.frontend \
+            --build-arg VITE_API_BASE_URL="${{ steps.backend-url.outputs.url }}" \
+            -t "$IMAGE" \
+            -t "${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/frontend:latest" .
+          docker push --all-tags \
+            "${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/frontend"
+
+      - name: Deploy frontend to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
+            --image="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/frontend:${{ github.sha }}" \
+            --region=${{ env.REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=256Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=3
+
+      - name: Get frontend URL and print summary
+        run: |
+          FRONTEND_URL=$(gcloud run services describe ${{ env.FRONTEND_SERVICE }} \
+            --region=${{ env.REGION }} --format="value(status.url)")
+          echo ""
+          echo "============================================"
+          echo "  DEPLOYMENT COMPLETE"
+          echo "  Frontend : $FRONTEND_URL"
+          echo "  Backend  : ${{ steps.backend-url.outputs.url }}"
+          echo "  API Docs : ${{ steps.backend-url.outputs.url }}/docs"
+          echo "============================================"

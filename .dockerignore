@@ -1,0 +1,54 @@
+# ================================================
+# .dockerignore — exclude heavy/unnecessary files
+# from Docker build context to speed up builds
+# ================================================
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Dataset files (large; injected via Cloud Storage at runtime)
+data/
+
+# Git
+.git/
+.gitignore
+
+# Node / Frontend build artifacts (built inside container)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files (injected via Secret Manager / Cloud Run env vars)
+.env
+backend/.env
+
+# Local test cache and reports
+backend/tests/__pycache__/
+backend/services/local_db_cache.json
+
+# Jupyter notebooks (not needed in production)
+*.ipynb
+.ipynb_checkpoints/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Docs
+*.pdf
+*.md

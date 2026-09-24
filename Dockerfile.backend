@@ -1,0 +1,52 @@
+# ============================================================
+# Backend Dockerfile — FastAPI + ML (Cloud Run optimised)
+# Multi-stage build: keeps final image lean (~700 MB)
+# ============================================================
+# ── Stage 1: build / dependency resolver ─────────────────────
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+# System deps for scikit-learn / numpy compilation
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libgomp1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python deps into an isolated prefix
+COPY backend/requirements.txt .
+RUN pip install --upgrade pip \
+ && pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+
+# ── Stage 2: runtime ─────────────────────────────────────────
+FROM python:3.11-slim AS runtime
+
+# Copy pre-installed packages from builder
+COPY --from=builder /install /usr/local
+
+# System runtime libs (libgomp for XGBoost)
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy application code
+COPY backend/ ./backend/
+COPY final_network_security_xgboost.pkl ./
+
+# Cloud Run injects PORT env var (default 8080)
+ENV PORT=8080
+ENV HOST=0.0.0.0
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+EXPOSE 8080
+
+# Run FastAPI via uvicorn — single worker per Cloud Run container
+CMD ["python", "-m", "uvicorn", "backend.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8080", \
+     "--workers", "1", \
+     "--log-level", "info"]

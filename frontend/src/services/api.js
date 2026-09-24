@@ -2,9 +2,16 @@
  * Real API Client for AI-Powered Network Security Incident Analysis Backend.
  * Connects directly to the FastAPI backend at /api endpoints.
  * All operations communicate with real backend services (ML XGBoost, NLP, Risk, GenAI, MongoDB).
+ *
+ * In development: Vite proxy forwards /api -> http://localhost:8000/api
+ * In production (GCP Cloud Run): VITE_API_BASE_URL is injected at Docker build time
+ *   pointing to the Cloud Run backend service URL.
  */
 
-const API_BASE_URL = '/api';
+// VITE_API_BASE_URL is set to "" in dev (Vite proxy handles /api)
+// and to "https://ai-security-backend-xxx.run.app" in GCP production
+const _envBase = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = _envBase ? `${_envBase}/api` : '/api';
 
 /**
  * Checks if the FastAPI backend service is online.

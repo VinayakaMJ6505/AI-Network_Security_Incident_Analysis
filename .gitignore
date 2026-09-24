@@ -41,4 +41,14 @@ Thumbs.db
 
 # Backend local cache & test cache
 backend/services/local_db_cache.json
-.pytest_cache/
+.pytest_cache/
+# GCP credentials -- NEVER commit these
+*-service-account-key.json
+*-credentials.json
+gcp-key.json
+service-account*.json
+application_default_credentials.json
+
+# Local env files
+backend/.env
+frontend/.env
