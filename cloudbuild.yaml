@@ -29,6 +29,7 @@ steps:
       - "-c"
       - |
         pip install -r backend/requirements.txt -q
+        pip install -r backend/requirements-test.txt -q
         python -m pytest backend/tests/ -q --tb=short --ignore=backend/tests/verify_live_e2e_workflow.py
     env:
       - "MONGODB_URI=mongodb://localhost:27017"
