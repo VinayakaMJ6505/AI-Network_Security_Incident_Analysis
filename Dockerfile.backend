@@ -26,8 +26,8 @@ FROM python:3.11-slim AS runtime
 # Copy pre-installed packages from builder
 COPY --from=builder /install /usr/local
 
-# System runtime libs (libgomp for XGBoost)
-RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+# System runtime libs (libgomp for XGBoost, curl for the compose healthcheck)
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

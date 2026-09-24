@@ -8,7 +8,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --omit=dev
+# devDependencies are required here: vite (and the rest of the build
+# toolchain) live there, not in dependencies. Only the built dist/ output
+# gets copied into the runtime stage below, so nothing extra ships.
+RUN npm ci
 
 COPY frontend/ ./
 # Inject the backend API URL at build time via build arg
