@@ -1,12 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import StatusBadge from './StatusBadge';
 import { Search, Eye, ArrowUpDown, ShieldAlert } from 'lucide-react';
+import { Card } from './ui/Card';
+import { cn } from '../lib/cn';
+
+function riskBarClass(score) {
+  if (score > 80) return 'bg-severity-critical';
+  if (score > 60) return 'bg-severity-high';
+  if (score > 30) return 'bg-severity-medium';
+  return 'bg-severity-low';
+}
 
 export default function RecentIncidentsTable({
   incidents = [],
   onSelectIncident,
   showFilters = true,
   title = "Recent Incidents",
+  bare = false,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSeverity, setSelectedSeverity] = useState('ALL');
@@ -63,16 +73,19 @@ export default function RecentIncidentsTable({
     }
   };
 
+  const Wrapper = bare ? 'div' : Card;
+
   return (
-    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-xl overflow-hidden shadow-xl shadow-black/20">
+    <Wrapper className={bare ? 'flex h-full flex-col overflow-hidden' : 'overflow-hidden'}>
       {/* Header & Controls */}
-      <div className="p-5 sm:p-6 border-b border-slate-800/80 bg-slate-950/40">
+      {!bare && (
+      <div className="border-b border-border bg-muted/40 p-5 sm:p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-bold text-white tracking-tight font-display">
+            <h3 className="font-display text-base font-bold tracking-tight text-foreground">
               {title}
             </h3>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="mt-1 text-xs text-muted-foreground">
               Showing {filteredIncidents.length} of {incidents.length} recorded security events
             </p>
           </div>
@@ -81,13 +94,13 @@ export default function RecentIncidentsTable({
             <div className="flex flex-wrap items-center gap-2.5">
               {/* Search */}
               <div className="relative min-w-[220px] flex-grow sm:flex-grow-0">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search by IP, attack, or port..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 font-mono transition-all"
+                  className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3.5 font-mono text-xs text-foreground placeholder-muted-foreground transition-all focus:border-primary/60 focus:outline-none focus:ring-1 focus:ring-primary/20"
                 />
               </div>
 
@@ -96,7 +109,7 @@ export default function RecentIncidentsTable({
                 aria-label="Filter by Severity"
                 value={selectedSeverity}
                 onChange={(e) => setSelectedSeverity(e.target.value)}
-                className="px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-slate-300 focus:outline-none focus:border-cyan-500/60 transition-colors"
+                className="rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground transition-colors focus:border-primary/60 focus:outline-none"
               >
                 <option value="ALL">All Severities</option>
                 <option value="LOW">LOW</option>
@@ -110,7 +123,7 @@ export default function RecentIncidentsTable({
                 aria-label="Filter by Attack Category"
                 value={selectedAttack}
                 onChange={(e) => setSelectedAttack(e.target.value)}
-                className="px-3.5 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-slate-300 focus:outline-none focus:border-cyan-500/60 transition-colors"
+                className="rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground transition-colors focus:border-primary/60 focus:outline-none"
               >
                 <option value="ALL">All Categories</option>
                 {attackCategories.map((cat) => (
@@ -123,62 +136,63 @@ export default function RecentIncidentsTable({
           )}
         </div>
       </div>
+      )}
 
       {/* Table Content */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950/70 uppercase text-[11px] font-semibold text-slate-400 border-b border-slate-800/80 tracking-wider">
+      <div className={bare ? 'flex-1 overflow-auto' : 'overflow-x-auto'}>
+        <table className="w-full text-left text-xs text-muted-foreground">
+          <thead className="border-b border-border text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="py-3.5 px-5">
                 <button
                   onClick={() => toggleSort('source_ip')}
-                  className="flex items-center gap-1.5 hover:text-cyan-300 transition-colors"
+                  className="flex items-center gap-1.5 transition-colors hover:text-primary"
                 >
-                  Source IP <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                  Source IP <ArrowUpDown className="h-3 w-3 text-muted-foreground/70" />
                 </button>
               </th>
               <th className="py-3.5 px-5 hidden sm:table-cell">Destination / Port</th>
               <th className="py-3.5 px-5">
                 <button
                   onClick={() => toggleSort('attack_type')}
-                  className="flex items-center gap-1.5 hover:text-cyan-300 transition-colors"
+                  className="flex items-center gap-1.5 transition-colors hover:text-primary"
                 >
-                  Attack Type <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                  Attack Type <ArrowUpDown className="h-3 w-3 text-muted-foreground/70" />
                 </button>
               </th>
               <th className="py-3.5 px-5">
                 <button
                   onClick={() => toggleSort('risk_score')}
-                  className="flex items-center gap-1.5 hover:text-cyan-300 transition-colors"
+                  className="flex items-center gap-1.5 transition-colors hover:text-primary"
                 >
-                  Risk Score <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                  Risk Score <ArrowUpDown className="h-3 w-3 text-muted-foreground/70" />
                 </button>
               </th>
               <th className="py-3.5 px-5">
                 <button
                   onClick={() => toggleSort('severity')}
-                  className="flex items-center gap-1.5 hover:text-cyan-300 transition-colors"
+                  className="flex items-center gap-1.5 transition-colors hover:text-primary"
                 >
-                  Severity <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                  Severity <ArrowUpDown className="h-3 w-3 text-muted-foreground/70" />
                 </button>
               </th>
               <th className="py-3.5 px-5 hidden md:table-cell">
                 <button
                   onClick={() => toggleSort('timestamp')}
-                  className="flex items-center gap-1.5 hover:text-cyan-300 transition-colors"
+                  className="flex items-center gap-1.5 transition-colors hover:text-primary"
                 >
-                  Timestamp <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                  Timestamp <ArrowUpDown className="h-3 w-3 text-muted-foreground/70" />
                 </button>
               </th>
               <th className="py-3.5 px-5 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-border">
             {filteredIncidents.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-slate-500">
+                <td colSpan={7} className="py-12 text-center text-muted-foreground">
                   <div className="flex flex-col items-center justify-center">
-                    <ShieldAlert className="w-8 h-8 opacity-30 text-cyan-400 mb-2" />
+                    <ShieldAlert className="mb-2 h-8 w-8 text-primary opacity-30" />
                     <span>No security incidents matching current filters.</span>
                   </div>
                 </td>
@@ -188,50 +202,42 @@ export default function RecentIncidentsTable({
                 <tr
                   key={inc.id}
                   onClick={() => onSelectIncident && onSelectIncident(inc)}
-                  className="hover:bg-cyan-500/[0.04] transition-colors cursor-pointer group"
+                  className="group cursor-pointer transition-colors hover:bg-primary/[0.04]"
                 >
                   <td className="py-3.5 px-5">
-                    <div className="font-semibold text-white font-mono group-hover:text-cyan-300 transition-colors">
+                    <div className="font-mono font-semibold text-foreground transition-colors group-hover:text-primary">
                       {inc.source_ip}
                     </div>
                     {inc.username && (
-                      <div className="text-[11px] text-slate-500 font-sans mt-0.5">
+                      <div className="mt-0.5 font-sans text-[11px] text-muted-foreground">
                         User: {inc.username}
                       </div>
                     )}
                   </td>
-                  <td className="py-3.5 px-5 hidden sm:table-cell text-slate-400 font-mono">
+                  <td className="py-3.5 px-5 hidden sm:table-cell font-mono text-muted-foreground">
                     <div>{inc.destination_ip}</div>
-                    <div className="text-[11px] text-cyan-400/80 mt-0.5">
+                    <div className="mt-0.5 text-[11px] text-primary/80">
                       Port: {inc.port} ({inc.protocol || 'TCP'})
                     </div>
                   </td>
                   <td className="py-3.5 px-5">
-                    <span className="font-semibold text-slate-200">
+                    <span className="font-semibold text-foreground">
                       {inc.attack_type}
                     </span>
                     {inc.confidence && (
-                      <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                      <div className="mt-0.5 font-mono text-[11px] text-muted-foreground">
                         {(inc.confidence * 100).toFixed(0)}% Conf
                       </div>
                     )}
                   </td>
                   <td className="py-3.5 px-5">
                     <div className="flex items-center gap-2.5">
-                      <span className="font-bold text-white font-mono text-sm">
+                      <span className="font-mono text-sm font-bold text-foreground">
                         {inc.risk_score}
                       </span>
-                      <div className="w-14 bg-slate-800 rounded-full h-1.5 overflow-hidden hidden sm:block">
+                      <div className="hidden h-1.5 w-14 overflow-hidden rounded-full bg-muted sm:block">
                         <div
-                          className={`h-1.5 rounded-full ${
-                            inc.risk_score > 80
-                              ? 'bg-rose-500'
-                              : inc.risk_score > 60
-                              ? 'bg-orange-500'
-                              : inc.risk_score > 30
-                              ? 'bg-amber-500'
-                              : 'bg-emerald-500'
-                          }`}
+                          className={cn('h-1.5 rounded-full', riskBarClass(inc.risk_score))}
                           style={{ width: `${Math.min(100, inc.risk_score)}%` }}
                         />
                       </div>
@@ -240,7 +246,7 @@ export default function RecentIncidentsTable({
                   <td className="py-3.5 px-5">
                     <StatusBadge severity={inc.severity} />
                   </td>
-                  <td className="py-3.5 px-5 hidden md:table-cell text-slate-400 text-xs font-mono">
+                  <td className="py-3.5 px-5 hidden md:table-cell font-mono text-xs text-muted-foreground">
                     {inc.timestamp?.replace('T', ' ').substring(0, 19)}
                   </td>
                   <td className="py-3.5 px-5 text-right">
@@ -249,9 +255,9 @@ export default function RecentIncidentsTable({
                         e.stopPropagation();
                         onSelectIncident && onSelectIncident(inc);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-semibold border border-slate-700/60 group-hover:border-cyan-500/30 transition-all"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all group-hover:border-primary/30 group-hover:bg-primary/10 group-hover:text-primary"
                     >
-                      <Eye className="w-3.5 h-3.5" />
+                      <Eye className="h-3.5 w-3.5" />
                       <span className="hidden sm:inline">Inspect</span>
                     </button>
                   </td>
@@ -261,6 +267,6 @@ export default function RecentIncidentsTable({
           </tbody>
         </table>
       </div>
-    </div>
+    </Wrapper>
   );
 }

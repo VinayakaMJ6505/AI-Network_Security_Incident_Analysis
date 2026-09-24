@@ -1,149 +1,112 @@
 import React from 'react';
-import {
-  Layers,
-  Cpu,
-  BrainCircuit,
-  Shield,
-} from 'lucide-react';
+import { Layers, Cpu, BrainCircuit, Shield } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import { cn } from '../lib/cn';
+
+const PIPELINE_STEPS = [
+  { step: '01', title: 'Raw Traffic & Logs', desc: 'UNSW-NB15 CSV / Syslog', footer: 'Pandas & PySpark', accent: 'text-primary' },
+  { step: '02', title: 'Feature Engineering', desc: 'One-Hot & Standard Scale', footer: '194 Numerical Features', accent: 'text-info' },
+  { step: '03', title: 'XGBoost Multiclass', desc: '10 Attack Categories', footer: '97.4% Accuracy', accent: 'text-success', highlight: true },
+  { step: '04', title: 'Risk & Severity', desc: 'Weighted Port & Conf', footer: '0–100 Severity Matrix', accent: 'text-purple-500 dark:text-purple-400' },
+  { step: '05', title: 'Generative AI', desc: 'Natural Lang Explanation', footer: 'Actionable SOC Steps', accent: 'text-warning' },
+];
+
+const MODEL_ROWS = [
+  { name: 'Logistic Regression', task: 'Baseline Binary', accuracy: '81.2%', precision: '80.5%', recall: '79.8%', f1: '80.1%', status: 'Baseline', tone: 'default' },
+  { name: 'Random Forest', task: 'Multiclass (10-cat)', accuracy: '94.8%', precision: '93.9%', recall: '94.2%', f1: '94.0%', status: 'Evaluated', tone: 'primary' },
+  { name: 'XGBoost (Production Final)', task: 'Multiclass (10-cat)', accuracy: '97.4%', precision: '97.1%', recall: '96.8%', f1: '96.9%', status: 'PRODUCTION', tone: 'success', final: true },
+];
 
 export default function ArchitectureView() {
   return (
     <div className="space-y-6">
-      {/* Title */}
-      <div className="p-6 sm:p-8 rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/80 via-[#0d1527]/80 to-slate-900/80 backdrop-blur-xl shadow-xl shadow-black/20">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3 font-display">
-          <Layers className="w-6 h-6 text-purple-400" />
-          System Architecture & Machine Learning Specifications
+      <Card className="bg-gradient-to-br from-card via-card to-card p-6 sm:p-8">
+        <h2 className="flex items-center gap-3 font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+          <Layers className="h-6 w-6 text-purple-500 dark:text-purple-400" />
+          System Architecture &amp; Machine Learning Specifications
         </h2>
-        <p className="text-sm text-slate-300 mt-1 max-w-3xl leading-relaxed">
+        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
           Comprehensive overview of data pipelines, XGBoost attack classification, NLP log extraction, Generative AI explanation, and model evaluation metrics.
         </p>
-      </div>
+      </Card>
 
-      {/* Architecture Flowchart / Diagram */}
-      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 sm:p-7 backdrop-blur-xl shadow-xl shadow-black/20">
-        <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-5 flex items-center gap-2">
-          <BrainCircuit className="w-4 h-4 text-cyan-400" /> End-to-End Analytical Pipeline
+      <Card className="p-6 sm:p-7">
+        <h3 className="mb-5 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-foreground">
+          <BrainCircuit className="h-4 w-4 text-primary" /> End-to-End Analytical Pipeline
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-center">
-          <div className="p-5 rounded-xl bg-slate-950/80 border border-slate-800/80 flex flex-col justify-between hover:border-cyan-500/40 transition-colors">
-            <span className="text-[10px] font-mono text-cyan-400 uppercase font-semibold">Step 01</span>
-            <div className="my-3">
-              <span className="text-sm font-bold text-white block">Raw Traffic & Logs</span>
-              <span className="text-xs text-slate-400 block mt-1">UNSW-NB15 CSV / Syslog</span>
+        <div className="grid grid-cols-1 gap-4 text-center sm:grid-cols-2 lg:grid-cols-5">
+          {PIPELINE_STEPS.map((s) => (
+            <div
+              key={s.step}
+              className={cn(
+                'flex flex-col justify-between rounded-xl border p-5 transition-colors',
+                s.highlight
+                  ? 'border-primary/40 bg-primary/5 shadow-lg shadow-primary/10'
+                  : 'border-border bg-muted/40 hover:border-primary/40'
+              )}
+            >
+              <span className={cn('font-mono text-[10px] font-semibold uppercase', s.accent)}>Step {s.step}</span>
+              <div className="my-3">
+                <span className="block text-sm font-bold text-foreground">{s.title}</span>
+                <span className="mt-1 block text-xs text-muted-foreground">{s.desc}</span>
+              </div>
+              <span className={cn('font-mono text-xs', s.highlight ? 'font-bold text-success' : 'text-muted-foreground')}>
+                {s.footer}
+              </span>
             </div>
-            <span className="text-xs text-slate-500 font-mono">Pandas & PySpark</span>
-          </div>
-
-          <div className="p-5 rounded-xl bg-slate-950/80 border border-slate-800/80 flex flex-col justify-between hover:border-cyan-500/40 transition-colors">
-            <span className="text-[10px] font-mono text-blue-400 uppercase font-semibold">Step 02</span>
-            <div className="my-3">
-              <span className="text-sm font-bold text-white block">Feature Engineering</span>
-              <span className="text-xs text-slate-400 block mt-1">One-Hot & Standard Scale</span>
-            </div>
-            <span className="text-xs text-slate-500 font-mono">194 Numerical Features</span>
-          </div>
-
-          <div className="p-5 rounded-xl bg-slate-950/80 border border-cyan-500/40 bg-cyan-950/20 flex flex-col justify-between shadow-lg shadow-cyan-500/10">
-            <span className="text-[10px] font-mono text-emerald-400 uppercase font-bold">Step 03</span>
-            <div className="my-3">
-              <span className="text-sm font-bold text-white block">XGBoost Multiclass</span>
-              <span className="text-xs text-emerald-300 block mt-1">10 Attack Categories</span>
-            </div>
-            <span className="text-xs text-emerald-400 font-mono font-bold">97.4% Accuracy</span>
-          </div>
-
-          <div className="p-5 rounded-xl bg-slate-950/80 border border-slate-800/80 flex flex-col justify-between hover:border-cyan-500/40 transition-colors">
-            <span className="text-[10px] font-mono text-purple-400 uppercase font-semibold">Step 04</span>
-            <div className="my-3">
-              <span className="text-sm font-bold text-white block">Risk & Severity</span>
-              <span className="text-xs text-slate-400 block mt-1">Weighted Port & Conf</span>
-            </div>
-            <span className="text-xs text-slate-500 font-mono">0–100 Severity Matrix</span>
-          </div>
-
-          <div className="p-5 rounded-xl bg-slate-950/80 border border-slate-800/80 flex flex-col justify-between hover:border-cyan-500/40 transition-colors">
-            <span className="text-[10px] font-mono text-amber-400 uppercase font-semibold">Step 05</span>
-            <div className="my-3">
-              <span className="text-sm font-bold text-white block">Generative AI</span>
-              <span className="text-xs text-slate-400 block mt-1">Natural Lang Explanation</span>
-            </div>
-            <span className="text-xs text-slate-500 font-mono">Actionable SOC Steps</span>
-          </div>
+          ))}
         </div>
-      </div>
+      </Card>
 
-      {/* Model Evaluation Comparison Table */}
-      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 sm:p-7 backdrop-blur-xl shadow-xl shadow-black/20">
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/80">
+      <Card className="p-6 sm:p-7">
+        <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
           <div>
-            <h3 className="text-base font-bold text-white tracking-tight font-display">
+            <h3 className="font-display text-base font-bold tracking-tight text-foreground">
               Evaluated Machine Learning Models
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Comparison across UNSW-NB15 testing partition (82,332 records)
             </p>
           </div>
-          <Cpu className="w-5 h-5 text-cyan-400" />
+          <Cpu className="h-5 w-5 text-primary" />
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950/70 uppercase font-semibold text-[11px] text-slate-400 border-b border-slate-800/80 font-sans tracking-wider">
+          <table className="w-full text-left text-xs text-muted-foreground">
+            <thead className="border-b border-border font-sans text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="py-3.5 px-4">Model Algorithm</th>
-                <th className="py-3.5 px-4">Task Type</th>
-                <th className="py-3.5 px-4 font-mono">Accuracy</th>
-                <th className="py-3.5 px-4 font-mono">Precision</th>
-                <th className="py-3.5 px-4 font-mono">Recall</th>
-                <th className="py-3.5 px-4 font-mono">F1-Score</th>
-                <th className="py-3.5 px-4">Status</th>
+                <th className="px-4 py-3.5">Model Algorithm</th>
+                <th className="px-4 py-3.5">Task Type</th>
+                <th className="px-4 py-3.5 font-mono">Accuracy</th>
+                <th className="px-4 py-3.5 font-mono">Precision</th>
+                <th className="px-4 py-3.5 font-mono">Recall</th>
+                <th className="px-4 py-3.5 font-mono">F1-Score</th>
+                <th className="px-4 py-3.5">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/70">
-              <tr className="hover:bg-cyan-500/[0.03] transition-colors">
-                <td className="py-3.5 px-4 font-bold text-white">Logistic Regression</td>
-                <td className="py-3.5 px-4 text-slate-400">Baseline Binary</td>
-                <td className="py-3.5 px-4 font-mono">81.2%</td>
-                <td className="py-3.5 px-4 font-mono">80.5%</td>
-                <td className="py-3.5 px-4 font-mono">79.8%</td>
-                <td className="py-3.5 px-4 font-mono">80.1%</td>
-                <td className="py-3.5 px-4">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-slate-400 border border-slate-700">Baseline</span>
-                </td>
-              </tr>
-              <tr className="hover:bg-cyan-500/[0.03] transition-colors">
-                <td className="py-3.5 px-4 font-bold text-white">Random Forest</td>
-                <td className="py-3.5 px-4 text-slate-400">Multiclass (10-cat)</td>
-                <td className="py-3.5 px-4 font-mono">94.8%</td>
-                <td className="py-3.5 px-4 font-mono">93.9%</td>
-                <td className="py-3.5 px-4 font-mono">94.2%</td>
-                <td className="py-3.5 px-4 font-mono">94.0%</td>
-                <td className="py-3.5 px-4">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/30">Evaluated</span>
-                </td>
-              </tr>
-              <tr className="bg-cyan-950/20 border-l-2 border-cyan-400">
-                <td className="py-3.5 px-4 font-bold text-cyan-300 flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-cyan-400" />
-                  XGBoost (Production Final)
-                </td>
-                <td className="py-3.5 px-4 text-slate-300">Multiclass (10-cat)</td>
-                <td className="py-3.5 px-4 font-bold text-cyan-300 font-mono">97.4%</td>
-                <td className="py-3.5 px-4 font-bold text-cyan-300 font-mono">97.1%</td>
-                <td className="py-3.5 px-4 font-bold text-cyan-300 font-mono">96.8%</td>
-                <td className="py-3.5 px-4 font-bold text-cyan-300 font-mono">96.9%</td>
-                <td className="py-3.5 px-4">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 font-bold">
-                    PRODUCTION
-                  </span>
-                </td>
-              </tr>
+            <tbody className="divide-y divide-border">
+              {MODEL_ROWS.map((row) => (
+                <tr key={row.name} className={cn('transition-colors hover:bg-primary/[0.04]', row.final && 'bg-primary/5 border-l-2 border-primary')}>
+                  <td className={cn('flex items-center gap-1.5 px-4 py-3.5 font-bold', row.final ? 'text-primary' : 'text-foreground')}>
+                    {row.final && <Shield className="h-3.5 w-3.5 text-primary" />}
+                    {row.name}
+                  </td>
+                  <td className="px-4 py-3.5">{row.task}</td>
+                  <td className={cn('px-4 py-3.5 font-mono', row.final && 'font-bold text-primary')}>{row.accuracy}</td>
+                  <td className={cn('px-4 py-3.5 font-mono', row.final && 'font-bold text-primary')}>{row.precision}</td>
+                  <td className={cn('px-4 py-3.5 font-mono', row.final && 'font-bold text-primary')}>{row.recall}</td>
+                  <td className={cn('px-4 py-3.5 font-mono', row.final && 'font-bold text-primary')}>{row.f1}</td>
+                  <td className="px-4 py-3.5">
+                    <Badge variant={row.tone}>{row.status}</Badge>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

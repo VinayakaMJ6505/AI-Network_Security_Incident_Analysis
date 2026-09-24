@@ -16,15 +16,15 @@ export function getSeverityFromScore(score) {
 export function getSeverityBadgeClass(severity) {
   switch (severity?.toUpperCase()) {
     case 'LOW':
-      return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+      return 'bg-severity-low/10 text-severity-low border border-severity-low/30';
     case 'MEDIUM':
-      return 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
+      return 'bg-severity-medium/10 text-severity-medium border border-severity-medium/30';
     case 'HIGH':
-      return 'bg-orange-500/10 text-orange-400 border border-orange-500/30';
+      return 'bg-severity-high/10 text-severity-high border border-severity-high/30';
     case 'CRITICAL':
-      return 'bg-rose-500/15 text-rose-400 border border-rose-500/40 shadow-sm shadow-rose-500/20';
+      return 'bg-severity-critical/15 text-severity-critical border border-severity-critical/40 shadow-sm shadow-severity-critical/20';
     default:
-      return 'bg-slate-500/10 text-slate-400 border border-slate-500/30';
+      return 'bg-muted text-muted-foreground border border-border';
   }
 }
 

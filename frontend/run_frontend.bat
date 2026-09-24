@@ -1,6 +1,6 @@
 @echo off
 echo ========================================================
-echo Starting AI Network Security Incident Analysis Frontend
+echo Starting Suite Strike Frontend
 echo ========================================================
 set "ComSpec=C:\Windows\System32\cmd.exe"
 npm run dev

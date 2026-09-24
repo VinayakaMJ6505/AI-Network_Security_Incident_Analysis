@@ -1,55 +1,15 @@
 import React from 'react';
+import { Card } from './ui/Card';
+import { cn } from '../lib/cn';
 
 const COLOR_MAP = {
-  blue: {
-    bg: 'bg-cyan-500/10',
-    border: 'border-cyan-500/25',
-    text: 'text-cyan-400',
-    accent: 'bg-cyan-400',
-    glow: 'hover:border-cyan-500/40 hover:shadow-[0_8px_30px_-10px_rgba(6,182,212,0.25)]',
-  },
-  emerald: {
-    bg: 'bg-emerald-500/10',
-    border: 'border-emerald-500/25',
-    text: 'text-emerald-400',
-    accent: 'bg-emerald-400',
-    glow: 'hover:border-emerald-500/40 hover:shadow-[0_8px_30px_-10px_rgba(16,185,129,0.25)]',
-  },
-  amber: {
-    bg: 'bg-amber-500/10',
-    border: 'border-amber-500/25',
-    text: 'text-amber-400',
-    accent: 'bg-amber-400',
-    glow: 'hover:border-amber-500/40 hover:shadow-[0_8px_30px_-10px_rgba(245,158,11,0.25)]',
-  },
-  rose: {
-    bg: 'bg-rose-500/10',
-    border: 'border-rose-500/25',
-    text: 'text-rose-400',
-    accent: 'bg-rose-400',
-    glow: 'hover:border-rose-500/40 hover:shadow-[0_8px_30px_-10px_rgba(244,63,94,0.25)]',
-  },
-  red: {
-    bg: 'bg-rose-500/10',
-    border: 'border-rose-500/25',
-    text: 'text-rose-400',
-    accent: 'bg-rose-400',
-    glow: 'hover:border-rose-500/40 hover:shadow-[0_8px_30px_-10px_rgba(244,63,94,0.25)]',
-  },
-  purple: {
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/25',
-    text: 'text-purple-400',
-    accent: 'bg-purple-400',
-    glow: 'hover:border-purple-500/40 hover:shadow-[0_8px_30px_-10px_rgba(168,85,247,0.25)]',
-  },
-  cyan: {
-    bg: 'bg-cyan-500/10',
-    border: 'border-cyan-500/25',
-    text: 'text-cyan-400',
-    accent: 'bg-cyan-400',
-    glow: 'hover:border-cyan-500/40 hover:shadow-[0_8px_30px_-10px_rgba(6,182,212,0.25)]',
-  },
+  blue: { bg: 'bg-primary/10', border: 'border-primary/25', text: 'text-primary', accent: 'bg-primary' },
+  cyan: { bg: 'bg-primary/10', border: 'border-primary/25', text: 'text-primary', accent: 'bg-primary' },
+  emerald: { bg: 'bg-success/10', border: 'border-success/25', text: 'text-success', accent: 'bg-success' },
+  amber: { bg: 'bg-warning/10', border: 'border-warning/25', text: 'text-warning', accent: 'bg-warning' },
+  rose: { bg: 'bg-destructive/10', border: 'border-destructive/25', text: 'text-destructive', accent: 'bg-destructive' },
+  red: { bg: 'bg-destructive/10', border: 'border-destructive/25', text: 'text-destructive', accent: 'bg-destructive' },
+  purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/25', text: 'text-purple-500 dark:text-purple-400', accent: 'bg-purple-500' },
 };
 
 export default function MetricCard({
@@ -60,64 +20,74 @@ export default function MetricCard({
   color = 'blue',
   badge,
   badgeType = 'neutral',
+  className,
+  bare = false,
 }) {
   const scheme = COLOR_MAP[color] || COLOR_MAP.blue;
 
-  return (
-    <div
-      className={`group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-xl transition-all duration-300 ${scheme.glow} hover:-translate-y-0.5 flex flex-col justify-between`}
-    >
-      {/* Top micro accent bar */}
-      <div
-        className={`absolute top-0 left-0 right-0 h-[2px] opacity-60 group-hover:opacity-100 transition-opacity ${scheme.accent}`}
-      />
+  const content = (
+    <div className={cn('group flex h-full flex-col justify-between', !bare && 'relative overflow-hidden p-5 sm:p-6')}>
+      {!bare && (
+        <div className={cn('absolute left-0 right-0 top-0 h-[2px] opacity-60 transition-opacity group-hover:opacity-100', scheme.accent)} />
+      )}
 
-      {/* Header with Title and Icon */}
-      <div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-semibold tracking-wider uppercase text-slate-400 flex items-center gap-2">
-            <span className={`w-1.5 h-1.5 rounded-full ${scheme.accent} shrink-0`} />
-            <span className="truncate">{title}</span>
-          </span>
-          {Icon && (
-            <div
-              className={`rounded-xl p-2.5 ${scheme.bg} ${scheme.border} border transition-all duration-300 group-hover:scale-105 shadow-sm shrink-0`}
-            >
-              <Icon className={`w-4 h-4 ${scheme.text}`} />
-            </div>
-          )}
-        </div>
-
-        {/* Counter value and Subtitle */}
-        <div className="mt-3">
-          <div className="text-3xl font-extrabold tracking-tight text-white font-mono">
-            {value}
-          </div>
-          {subtitle && (
-            <div className="text-xs text-slate-400 mt-1 font-sans">
-              {subtitle}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer Info: Status Badge on its own line */}
-      <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between min-h-[30px]">
-        <span className="text-[11px] text-slate-500 font-medium">Telemetry</span>
-        {badge ? (
+      <div className="flex items-center justify-between gap-2">
+        {bare ? (
           <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap ${
+            className={cn(
+              'inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-medium',
               badgeType === 'danger'
-                ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
-                : 'bg-slate-800/90 text-slate-300 border border-slate-700/60'
-            }`}
+                ? 'bg-destructive/15 text-destructive border border-destructive/30'
+                : 'bg-muted text-muted-foreground border border-border'
+            )}
           >
-            {badge}
+            {badge || title}
           </span>
         ) : (
-          <span className="text-[10px] text-slate-600 font-mono">Active</span>
+          <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', scheme.accent)} />
+            <span className="truncate">{title}</span>
+          </span>
+        )}
+        {Icon && (
+          <div className={cn('shrink-0 rounded-xl border p-2.5 shadow-sm transition-transform duration-300 group-hover:scale-105', scheme.bg, scheme.border)}>
+            <Icon className={cn('h-4 w-4', scheme.text)} />
+          </div>
         )}
       </div>
+
+      <div className="mt-3">
+        <div className="font-mono text-3xl font-extrabold tracking-tight text-foreground">{value}</div>
+        {subtitle && <div className="mt-1 font-sans text-xs text-muted-foreground">{subtitle}</div>}
+      </div>
+
+      {!bare && (
+        <div className="mt-4 flex min-h-[30px] items-center justify-between border-t border-border pt-3">
+          <span className="text-[11px] font-medium text-muted-foreground">Telemetry</span>
+          {badge ? (
+            <span
+              className={cn(
+                'inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-medium',
+                badgeType === 'danger'
+                  ? 'bg-destructive/15 text-destructive border border-destructive/30'
+                  : 'bg-muted text-muted-foreground border border-border'
+              )}
+            >
+              {badge}
+            </span>
+          ) : (
+            <span className="font-mono text-[10px] text-muted-foreground/70">Active</span>
+          )}
+        </div>
+      )}
     </div>
+  );
+
+  if (bare) return content;
+
+  return (
+    <Card className={cn('hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300', className)}>
+      {content}
+    </Card>
   );
 }

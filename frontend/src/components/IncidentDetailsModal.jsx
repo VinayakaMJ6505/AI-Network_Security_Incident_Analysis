@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import StatusBadge from './StatusBadge';
+import { Dialog, DialogContent } from './ui/Dialog';
 import {
   X,
   ShieldAlert,
@@ -41,45 +42,44 @@ export default function IncidentDetailsModal({ incident, onClose }) {
   const confidencePercent = Math.round((incident.confidence || 0.9) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-      {/* Toast Notification */}
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
       {copied && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-6 right-6 z-[60] flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/95 border border-emerald-500/50 text-white shadow-2xl shadow-emerald-500/20 backdrop-blur-md transition-all animate-bounce-once"
+          className="fixed top-6 right-6 z-[60] flex items-center gap-3 rounded-xl border border-success/50 bg-card px-4 py-3 text-foreground shadow-2xl shadow-success/20 backdrop-blur-md transition-all"
         >
-          <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-            <CheckCircle className="w-4 h-4" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-full border border-success/30 bg-success/20 text-success">
+            <CheckCircle className="h-4 w-4" />
           </div>
           <div>
-            <span className="font-bold text-emerald-400 block text-xs">
+            <span className="block text-xs font-bold text-success">
               Copied to clipboard!
             </span>
-            <span className="text-[11px] text-slate-300 block">
+            <span className="block text-[11px] text-muted-foreground">
               Incident JSON data copied successfully.
             </span>
           </div>
         </div>
       )}
 
-      <div className="relative w-full max-w-4xl rounded-2xl border border-slate-700/80 bg-[#090e1c] shadow-2xl overflow-hidden my-8">
+      <DialogContent showClose={false} className="max-w-4xl">
         {/* Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0d1424]">
+        <div className="flex items-center justify-between border-b border-border bg-muted/40 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/25">
-              <ShieldAlert className="w-5 h-5 text-cyan-400" />
+            <div className="rounded-xl border border-primary/25 bg-primary/10 p-2.5">
+              <ShieldAlert className="h-5 w-5 text-primary" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold text-white tracking-tight font-display">
+                <h2 className="font-display text-base font-bold tracking-tight text-foreground sm:text-lg">
                   Security Incident Dossier
                 </h2>
-                <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700/60">
+                <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 font-mono text-xs text-muted-foreground">
                   {incident.id || 'INC-LIVE'}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
+              <p className="mt-0.5 font-mono text-xs text-muted-foreground">
                 Detected at {incident.timestamp}
               </p>
             </div>
@@ -88,169 +88,169 @@ export default function IncidentDetailsModal({ incident, onClose }) {
           <div className="flex items-center gap-2">
             <button
               onClick={copyToClipboard}
-              className={`text-xs flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all font-semibold ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
                 copied
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-500/10'
-                  : 'bg-slate-800/90 hover:bg-slate-750 text-slate-300 border border-slate-700/80 hover:text-white'
+                  ? 'border border-success/40 bg-success/20 text-success shadow-sm shadow-success/10'
+                  : 'border border-border bg-muted text-muted-foreground hover:text-foreground'
               }`}
               title="Copy incident JSON"
             >
               {copied ? (
                 <>
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckCircle className="h-3.5 w-3.5 text-success" />
                   <span>Copied!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-3.5 h-3.5" />
+                  <Copy className="h-3.5 w-3.5" />
                   <span>Copy JSON</span>
                 </>
               )}
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700/60"
+              className="rounded-xl border border-border bg-muted p-2 text-muted-foreground transition-colors hover:text-foreground"
               aria-label="Close"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+        <div className="max-h-[80vh] space-y-6 overflow-y-auto p-6">
           {/* Key Metrics Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold block">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="rounded-xl border border-border bg-muted/40 p-4">
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Attack Classification
               </span>
-              <span className="text-lg font-bold text-white mt-1 block">
+              <span className="mt-1 block text-lg font-bold text-foreground">
                 {incident.attack_type}
               </span>
-              <span className="text-xs text-cyan-400 font-mono mt-0.5 block">
+              <span className="mt-0.5 block font-mono text-xs text-primary">
                 XGBoost Model
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold block">
+            <div className="rounded-xl border border-border bg-muted/40 p-4">
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 ML Confidence
               </span>
-              <span className="text-lg font-bold text-cyan-400 font-mono mt-1 block">
+              <span className="mt-1 block font-mono text-lg font-bold text-primary">
                 {confidencePercent}%
               </span>
-              <span className="text-xs text-slate-400 mt-0.5 block">
+              <span className="mt-0.5 block text-xs text-muted-foreground">
                 Multiclass Probability
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold block">
+            <div className="rounded-xl border border-border bg-muted/40 p-4">
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Risk Score
               </span>
-              <span className="text-lg font-bold text-white font-mono mt-1 block">
-                {incident.risk_score} <span className="text-xs text-slate-400 font-normal">/ 100</span>
+              <span className="mt-1 block font-mono text-lg font-bold text-foreground">
+                {incident.risk_score} <span className="text-xs font-normal text-muted-foreground">/ 100</span>
               </span>
-              <span className="text-xs text-slate-400 mt-0.5 block">
+              <span className="mt-0.5 block text-xs text-muted-foreground">
                 Aggregated Threat Index
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold block">
+            <div className="rounded-xl border border-border bg-muted/40 p-4">
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Severity Level
               </span>
               <div className="mt-2">
                 <StatusBadge severity={incident.severity} />
               </div>
-              <span className="text-xs text-slate-400 mt-1 block font-mono">
+              <span className="mt-1 block font-mono text-xs text-muted-foreground">
                 {incident.severity === 'CRITICAL' ? 'Immediate Escalation' : 'Standard Response'}
               </span>
             </div>
           </div>
 
           {/* Extracted Entities Section */}
-          <div className="rounded-xl border border-slate-800 bg-[#0d1424]/80 p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Cpu className="w-4 h-4 text-cyan-400" />
-              <h3 className="text-sm font-bold text-white tracking-wide uppercase">
-                Extracted NLP & Network Entities
+          <div className="rounded-xl border border-border bg-muted/20 p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Cpu className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+                Extracted NLP &amp; Network Entities
               </h3>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 font-mono text-xs">
-              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80">
-                <span className="text-slate-400 block text-[11px] uppercase font-sans">Source IP</span>
-                <span className="font-semibold text-white mt-1 block">{incident.source_ip || 'N/A'}</span>
+            <div className="grid grid-cols-2 gap-3 font-mono text-xs md:grid-cols-4">
+              <div className="rounded-lg border border-border bg-background p-3">
+                <span className="block font-sans text-[11px] uppercase text-muted-foreground">Source IP</span>
+                <span className="mt-1 block font-semibold text-foreground">{incident.source_ip || 'N/A'}</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80">
-                <span className="text-slate-400 block text-[11px] uppercase font-sans">Destination IP</span>
-                <span className="font-semibold text-white mt-1 block">{incident.destination_ip || 'N/A'}</span>
+              <div className="rounded-lg border border-border bg-background p-3">
+                <span className="block font-sans text-[11px] uppercase text-muted-foreground">Destination IP</span>
+                <span className="mt-1 block font-semibold text-foreground">{incident.destination_ip || 'N/A'}</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80">
-                <span className="text-slate-400 block text-[11px] uppercase font-sans">Port / Protocol</span>
-                <span className="font-semibold text-white mt-1 block">
+              <div className="rounded-lg border border-border bg-background p-3">
+                <span className="block font-sans text-[11px] uppercase text-muted-foreground">Port / Protocol</span>
+                <span className="mt-1 block font-semibold text-foreground">
                   {incident.port || entities.port || 80} / {incident.protocol || entities.protocol || 'TCP'}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80">
-                <span className="text-slate-400 block text-[11px] uppercase font-sans">Target User</span>
-                <span className="font-semibold text-white mt-1 block">{entities.username || 'N/A'}</span>
+              <div className="rounded-lg border border-border bg-background p-3">
+                <span className="block font-sans text-[11px] uppercase text-muted-foreground">Target User</span>
+                <span className="mt-1 block font-semibold text-foreground">{entities.username || 'N/A'}</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80">
-                <span className="text-slate-400 block text-[11px] uppercase font-sans">Failed Attempts</span>
-                <span className="font-semibold text-rose-400 mt-1 block">{entities.failed_attempts ?? 0}</span>
+              <div className="rounded-lg border border-border bg-background p-3">
+                <span className="block font-sans text-[11px] uppercase text-muted-foreground">Failed Attempts</span>
+                <span className="mt-1 block font-semibold text-destructive">{entities.failed_attempts ?? 0}</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80">
-                <span className="text-slate-400 block text-[11px] uppercase font-sans">Connection State</span>
-                <span className="font-semibold text-slate-200 mt-1 block">{incident.state || entities.state || 'CON'}</span>
+              <div className="rounded-lg border border-border bg-background p-3">
+                <span className="block font-sans text-[11px] uppercase text-muted-foreground">Connection State</span>
+                <span className="mt-1 block font-semibold text-foreground">{incident.state || entities.state || 'CON'}</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80">
-                <span className="text-slate-400 block text-[11px] uppercase font-sans">Service</span>
-                <span className="font-semibold text-slate-200 mt-1 block">{incident.service || entities.service || 'N/A'}</span>
+              <div className="rounded-lg border border-border bg-background p-3">
+                <span className="block font-sans text-[11px] uppercase text-muted-foreground">Service</span>
+                <span className="mt-1 block font-semibold text-foreground">{incident.service || entities.service || 'N/A'}</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80">
-                <span className="text-slate-400 block text-[11px] uppercase font-sans">Action Enforced</span>
-                <span className="font-semibold text-emerald-400 mt-1 block">{entities.action || 'Logged'}</span>
+              <div className="rounded-lg border border-border bg-background p-3">
+                <span className="block font-sans text-[11px] uppercase text-muted-foreground">Action Enforced</span>
+                <span className="mt-1 block font-semibold text-success">{entities.action || 'Logged'}</span>
               </div>
             </div>
           </div>
 
           {/* Generative AI Explanation Box */}
-          <div className="rounded-xl border border-cyan-500/25 bg-gradient-to-br from-[#0b1426] to-[#0f1b34] p-5 shadow-lg relative overflow-hidden">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-400/30">
-                <Sparkles className="w-4 h-4" />
+          <div className="relative overflow-hidden rounded-xl border border-primary/25 bg-primary/[0.04] p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <div className="rounded-lg border border-primary/30 bg-primary/20 p-1.5 text-primary">
+                <Sparkles className="h-4 w-4" />
               </div>
-              <h3 className="text-sm font-bold text-cyan-300 uppercase tracking-wider">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-primary">
                 Generative AI Incident Analysis
               </h3>
             </div>
 
             <div className="space-y-4 text-xs">
               <div>
-                <span className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider block mb-1">
+                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Incident Summary
                 </span>
-                <p className="text-slate-200 leading-relaxed bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/80">
+                <p className="rounded-xl border border-border bg-background/60 p-3.5 leading-relaxed text-foreground">
                   {ai.summary || 'AI incident summary generated based on analytical telemetry.'}
                 </p>
               </div>
 
               <div>
-                <span className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider block mb-1">
-                  Evidence & Behavioral Indicators
+                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Evidence &amp; Behavioral Indicators
                 </span>
-                <p className="text-slate-300 leading-relaxed bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/80">
+                <p className="rounded-xl border border-border bg-background/60 p-3.5 leading-relaxed text-muted-foreground">
                   {ai.evidence || 'Packet sequence and flag telemetry match attack signatures.'}
                 </p>
               </div>
 
               <div>
-                <span className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider block mb-1">
+                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Potential Security Impact
                 </span>
-                <p className="text-amber-200/90 leading-relaxed bg-amber-500/10 p-3.5 rounded-xl border border-amber-500/20">
+                <p className="rounded-xl border border-warning/20 bg-warning/10 p-3.5 leading-relaxed text-warning">
                   {ai.potential_impact || 'Moderate threat of service disruption or privilege escalation.'}
                 </p>
               </div>
@@ -258,11 +258,11 @@ export default function IncidentDetailsModal({ incident, onClose }) {
           </div>
 
           {/* Recommended Investigation Steps */}
-          <div className="rounded-xl border border-slate-800 bg-[#0d1424]/80 p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Terminal className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-bold text-white tracking-wide uppercase">
-                Recommended Investigation & Containment Steps
+          <div className="rounded-xl border border-border bg-muted/20 p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Terminal className="h-4 w-4 text-success" />
+              <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+                Recommended Investigation &amp; Containment Steps
               </h3>
             </div>
             <ul className="space-y-2.5">
@@ -273,9 +273,9 @@ export default function IncidentDetailsModal({ incident, onClose }) {
               ]).map((rec, idx) => (
                 <li
                   key={idx}
-                  className="flex items-start gap-2.5 text-xs text-slate-200 bg-slate-950/60 p-3 rounded-xl border border-slate-800"
+                  className="flex items-start gap-2.5 rounded-xl border border-border bg-background p-3 text-xs text-foreground"
                 >
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-bold">
+                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">
                     {idx + 1}
                   </span>
                   <span className="leading-relaxed">{rec}</span>
@@ -286,18 +286,18 @@ export default function IncidentDetailsModal({ incident, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-[#0d1424] border-t border-slate-800 flex items-center justify-between">
-          <span className="text-xs text-slate-500">
-            AI-Network Security Incident Analysis • MCA Capstone
+        <div className="flex items-center justify-between border-t border-border bg-muted/40 px-6 py-4">
+          <span className="text-xs text-muted-foreground">
+            Suite Strike • MCA Capstone
           </span>
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 text-xs font-bold transition-all"
+            className="rounded-xl bg-primary px-5 py-2 text-xs font-bold text-primary-foreground transition-all"
           >
             Done
           </button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

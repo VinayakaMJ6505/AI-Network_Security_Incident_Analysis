@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Navbar from './components/Navbar';
+import ThemeProvider from './theme/ThemeProvider';
+import AppShell from './components/layout/AppShell';
 import DashboardView from './views/DashboardView';
+import TelemetryView from './views/TelemetryView';
 import IncidentExplorerView from './views/IncidentExplorerView';
 import LiveAnalyzerView from './views/LiveAnalyzerView';
 import LogParserView from './views/LogParserView';
@@ -72,52 +74,54 @@ export default function App() {
   }, [loadData]);
 
   return (
-    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* Top Navigation Bar */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        backendOnline={backendOnline}
-        onRefresh={loadData}
-        isRefreshing={isRefreshing}
-      />
+    <ThemeProvider>
+    <AppShell
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      backendOnline={backendOnline}
+      onRefresh={loadData}
+      isRefreshing={isRefreshing}
+    >
+      {activeTab === 'dashboard' && (
+        <DashboardView
+          stats={stats}
+          incidents={incidents}
+          onSelectIncident={setSelectedIncident}
+          setActiveTab={setActiveTab}
+        />
+      )}
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
-        {activeTab === 'dashboard' && (
-          <DashboardView
-            stats={stats}
-            incidents={incidents}
-            onSelectIncident={setSelectedIncident}
-            setActiveTab={setActiveTab}
-          />
-        )}
+      {activeTab === 'telemetry' && (
+        <TelemetryView
+          stats={stats}
+          incidents={incidents}
+          onSelectIncident={setSelectedIncident}
+        />
+      )}
 
-        {activeTab === 'incidents' && (
-          <IncidentExplorerView
-            incidents={incidents}
-            onSelectIncident={setSelectedIncident}
-            setActiveTab={setActiveTab}
-          />
-        )}
+      {activeTab === 'incidents' && (
+        <IncidentExplorerView
+          incidents={incidents}
+          onSelectIncident={setSelectedIncident}
+          setActiveTab={setActiveTab}
+        />
+      )}
 
-        {activeTab === 'analyzer' && (
-          <LiveAnalyzerView onSelectIncident={setSelectedIncident} />
-        )}
+      {activeTab === 'analyzer' && (
+        <LiveAnalyzerView onSelectIncident={setSelectedIncident} />
+      )}
 
-        {activeTab === 'logparser' && (
-          <LogParserView
-            onSelectIncident={setSelectedIncident}
-            refreshIncidents={loadData}
-          />
-        )}
+      {activeTab === 'logparser' && (
+        <LogParserView
+          onSelectIncident={setSelectedIncident}
+          refreshIncidents={loadData}
+        />
+      )}
 
-        {activeTab === 'analytics' && <AnalyticsView stats={stats} />}
+      {activeTab === 'analytics' && <AnalyticsView stats={stats} />}
 
-        {activeTab === 'architecture' && <ArchitectureView />}
-      </main>
+      {activeTab === 'architecture' && <ArchitectureView />}
 
-      {/* Incident Details Modal Inspector */}
       {selectedIncident && (
         <IncidentDetailsModal
           incident={selectedIncident}
@@ -125,22 +129,18 @@ export default function App() {
         />
       )}
 
-      {/* Tactical Footer */}
-      <footer className="w-full border-t border-slate-800/80 bg-[#070b14]/90 backdrop-blur-md py-4 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 font-mono text-center sm:text-left">
-          <p>
-            AI-Powered Network Security Incident Analysis • MCA Project • Nitte Meenakshi Institute of Technology
-          </p>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-cyan-400/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-              FastAPI + React SOC Core
-            </span>
-            <span className="text-slate-700">|</span>
-            <span>UNSW-NB15 ML Guard</span>
-          </div>
+      <footer className="mt-8 border-t border-border pt-4 text-center text-[11px] font-mono text-muted-foreground sm:flex sm:items-center sm:justify-between sm:text-left">
+        <p>Suite Strike • MCA Project • Nitte Meenakshi Institute of Technology</p>
+        <div className="mt-2 flex items-center justify-center gap-3 sm:mt-0">
+          <span className="flex items-center gap-1.5 text-primary/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            FastAPI + React SOC Core
+          </span>
+          <span className="text-border">|</span>
+          <span>UNSW-NB15 ML Guard</span>
         </div>
       </footer>
-    </div>
+    </AppShell>
+    </ThemeProvider>
   );
 }

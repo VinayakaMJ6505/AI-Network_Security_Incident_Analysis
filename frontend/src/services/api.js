@@ -1,5 +1,5 @@
 /**
- * Real API Client for AI-Powered Network Security Incident Analysis Backend.
+ * Real API Client for Suite Strike Backend.
  * Connects directly to the FastAPI backend at /api endpoints.
  * All operations communicate with real backend services (ML XGBoost, NLP, Risk, GenAI, MongoDB).
  *

@@ -1,6 +1,6 @@
 @echo off
 echo ========================================================
-echo Starting AI Network Security Incident Analysis Backend
+echo Starting Suite Strike Backend
 echo Using Python 3.13 Environment
 echo ========================================================
 py -3.13 -m uvicorn main:app --reload --port 8000

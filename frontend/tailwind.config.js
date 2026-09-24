@@ -8,20 +8,50 @@ export default {
   theme: {
     extend: {
       colors: {
-        cyber: {
-          bg: '#0a0d14',
-          card: '#111726',
-          cardHover: '#161f33',
-          border: '#1e293b',
-          muted: '#64748b',
-          accent: '#3b82f6',
-          danger: '#ef4444',
-          warning: '#f59e0b',
-          success: '#10b981',
-          purple: '#8b5cf6',
-          cyan: '#06b6d4',
-        }
-      }
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        card: {
+          DEFAULT: 'var(--card)',
+          foreground: 'var(--card-foreground)',
+        },
+        popover: {
+          DEFAULT: 'var(--popover)',
+          foreground: 'var(--popover-foreground)',
+        },
+        sidebar: {
+          DEFAULT: 'var(--sidebar)',
+          foreground: 'var(--sidebar-foreground)',
+          border: 'var(--sidebar-border)',
+        },
+        primary: {
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
+        },
+        muted: {
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
+        },
+        border: 'var(--border)',
+        input: 'var(--input)',
+        ring: 'var(--ring)',
+        success: 'var(--success)',
+        warning: 'var(--warning)',
+        destructive: {
+          DEFAULT: 'var(--destructive)',
+          foreground: 'var(--destructive-foreground)',
+        },
+        info: 'var(--info)',
+        severity: {
+          low: 'var(--severity-low)',
+          medium: 'var(--severity-medium)',
+          high: 'var(--severity-high)',
+          critical: 'var(--severity-critical)',
+        },
+      },
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
+      },
     },
   },
   plugins: [],

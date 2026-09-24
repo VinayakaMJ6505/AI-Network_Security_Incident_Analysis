@@ -7,7 +7,7 @@ describe('App Integration & Navigation Flow', () => {
   it('renders navbar branding and default dashboard view', async () => {
     render(<App />);
 
-    expect(screen.getByText(/AI Network Security SOC/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Suite Strike/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Security Operations Center \(SOC\) Overview/i)).toBeInTheDocument();
     expect(screen.getByText(/Total Events/i)).toBeInTheDocument();
     expect(screen.getByText(/Detected Attacks/i)).toBeInTheDocument();

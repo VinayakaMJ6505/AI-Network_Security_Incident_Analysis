@@ -1,5 +1,5 @@
 """
-Pydantic Schemas for AI-Powered Network Security Incident Analysis Backend.
+Pydantic Schemas for Suite Strike Backend.
 Aligned with UNSW-NB15 ML features, README.md, and React frontend contracts.
 """
 from typing import List, Dict, Any, Optional, Union

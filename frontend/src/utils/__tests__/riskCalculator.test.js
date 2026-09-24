@@ -74,10 +74,10 @@ describe('Risk Assessment Module (README Specification)', () => {
 
   describe('getSeverityBadgeClass', () => {
     it('provides distinct styling for each severity level', () => {
-      expect(getSeverityBadgeClass('LOW')).toContain('emerald');
-      expect(getSeverityBadgeClass('MEDIUM')).toContain('amber');
-      expect(getSeverityBadgeClass('HIGH')).toContain('orange');
-      expect(getSeverityBadgeClass('CRITICAL')).toContain('rose');
+      expect(getSeverityBadgeClass('LOW')).toContain('severity-low');
+      expect(getSeverityBadgeClass('MEDIUM')).toContain('severity-medium');
+      expect(getSeverityBadgeClass('HIGH')).toContain('severity-high');
+      expect(getSeverityBadgeClass('CRITICAL')).toContain('severity-critical');
     });
   });
 });

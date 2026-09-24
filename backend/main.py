@@ -1,6 +1,6 @@
 """
 Main FastAPI Application Entrypoint.
-AI-Powered Network Security Incident Analysis System Backend.
+Suite Strike Backend.
 GCP Cloud Run compatible: reads PORT, HOST, ALLOWED_ORIGINS from environment.
 """
 import os
@@ -50,7 +50,7 @@ from services import ml_service, db_service
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Initializing AI-Powered Network Security Incident Analysis Backend...")
+    logger.info("Initializing Suite Strike Backend...")
     logger.info(f"ML Model loaded: {ml_service.is_loaded} (Classes: {len(ml_service.classes)})")
     logger.info(f"Database status: {'MongoDB connected' if db_service.is_connected else 'In-memory / JSON cache mode'}")
     yield
@@ -58,7 +58,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="AI-Powered Network Security Incident Analysis System API",
+    title="Suite Strike API",
     description=(
         "Backend API for detecting, classifying, analyzing, and explaining network security "
         "incidents using Machine Learning, NLP Log Analysis, Risk Assessment, and Generative AI."
@@ -100,7 +100,7 @@ app.include_router(explain_router,    prefix="/api")
 @app.get("/", tags=["Health"])
 async def root():
     return {
-        "system":        "AI-Powered Network Security Incident Analysis System",
+        "system":        "Suite Strike",
         "status":        "online",
         "documentation": "/docs",
         "version":       "1.0.0"

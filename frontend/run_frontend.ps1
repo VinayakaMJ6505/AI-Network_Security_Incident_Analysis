@@ -1,5 +1,5 @@
 Write-Host "========================================================" -ForegroundColor Cyan
-Write-Host "Starting AI Network Security Incident Analysis Frontend" -ForegroundColor Cyan
+Write-Host "Starting Suite Strike Frontend" -ForegroundColor Cyan
 Write-Host "========================================================" -ForegroundColor Cyan
 
 $env:ComSpec = "C:\Windows\System32\cmd.exe"
