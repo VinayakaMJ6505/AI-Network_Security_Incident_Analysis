@@ -42,8 +42,8 @@ CATEGORY_COLORS = {
 
 @router.get("/dashboard", response_model=DashboardStats)
 async def get_dashboard_metrics():
-    all_incidents = db_service.get_incidents(limit=500)
-    total_events = len(all_incidents)
+    all_incidents = db_service.get_incidents(limit=1000)
+    total_events = db_service.count_incidents()
 
     detected_attacks = 0
     high_risk_incidents = 0
