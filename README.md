@@ -1,5 +1,7 @@
 # 🛡️ AI-Powered Network Security Incident Analysis System
 
+> 📖 **Full Codebase Documentation & Architecture Manual**: Detailed line-by-line documentation, source code walkthroughs, capabilities, and system limitations ("What It Does & What It Does NOT Do") for every component are available in [**`CODEBASE_DOCUMENTATION.md`**](file:///c:/Users/user/collegeProject/AI-Network_Security_Incident_Analysis/CODEBASE_DOCUMENTATION.md).
+
 An AI-powered cybersecurity platform designed to detect, classify, analyze, and explain network security incidents using **Artificial Intelligence, Machine Learning, Big Data Analytics, Natural Language Processing, and Generative AI**.
 
 The system analyzes network traffic and security logs, identifies potential attacks, calculates risk levels, extracts important information from unstructured logs, and generates human-readable incident explanations and recommended investigation steps.
