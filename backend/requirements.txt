@@ -4,7 +4,13 @@ pydantic>=2.6.0
 pandas>=2.0.0
 numpy>=1.24.0
 scikit-learn>=1.4.0
-xgboost>=2.0.0
+# xgboost-cpu (not xgboost) — this backend only loads a pre-trained model
+# and calls .predict(); it never trains, and Cloud Run has no GPU. The
+# regular `xgboost` wheel unconditionally pulls in nvidia-nccl-cu12, a
+# ~350MB GPU multi-node training library that would sit unused in the
+# image. xgboost-cpu is XGBoost's own drop-in package for exactly this
+# case — same `import xgboost as xgb`, same API, no GPU dependency chain.
+xgboost-cpu>=2.0.0
 pymongo>=4.6.0
 joblib>=1.3.0
 python-multipart>=0.0.9
