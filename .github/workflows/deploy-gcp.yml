@@ -27,6 +27,21 @@ jobs:
   test:
     name: Run Test Suites
     runs-on: ubuntu-latest
+    # test_mongodb_integration.py needs a real, reachable MongoDB — without
+    # this service container, MONGODB_URI below points at nothing, those 5
+    # tests fail, pytest exits non-zero, and this whole job (and therefore
+    # the deploy job below, which `needs: test`) fails before ever touching
+    # GCP. This was the actual reason earlier runs never reached deployment.
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\").ok' --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
