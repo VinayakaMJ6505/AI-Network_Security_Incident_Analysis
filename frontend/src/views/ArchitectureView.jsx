@@ -2,20 +2,28 @@ import React from 'react';
 import { Layers, Cpu, BrainCircuit, Shield } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import FAQSection from '../components/FAQSection';
+import { ARCHITECTURE_FAQ } from '../constants/faqContent';
 import { cn } from '../lib/cn';
 
 const PIPELINE_STEPS = [
   { step: '01', title: 'Raw Traffic & Logs', desc: 'UNSW-NB15 CSV / Syslog', footer: 'Pandas & PySpark', accent: 'text-primary' },
   { step: '02', title: 'Feature Engineering', desc: 'One-Hot & Standard Scale', footer: '194 Numerical Features', accent: 'text-info' },
-  { step: '03', title: 'XGBoost Multiclass', desc: '10 Attack Categories', footer: '97.4% Accuracy', accent: 'text-success', highlight: true },
-  { step: '04', title: 'Risk & Severity', desc: 'Weighted Port & Conf', footer: '0–100 Severity Matrix', accent: 'text-purple-500 dark:text-purple-400' },
+  { step: '03', title: 'XGBoost Multiclass', desc: '10 Attack Categories', footer: '76.97% Accuracy', accent: 'text-success', highlight: true },
+  { step: '04', title: 'Risk & Severity', desc: 'Weighted Port & Conf', footer: '0–100 Severity Matrix', accent: 'text-foreground' },
   { step: '05', title: 'Generative AI', desc: 'Natural Lang Explanation', footer: 'Actionable SOC Steps', accent: 'text-warning' },
 ];
 
+// Real measured results from the training notebook's final "without ID"
+// multiclass comparison (backend/reports/model_evaluation_report.json +
+// AI_Network_Security_Incident_Analysis.ipynb) — not placeholders.
+// Precision/Recall/F1 here are weighted averages; the model struggles much
+// more on a per-class (macro) basis — see the Threat Analytics / model
+// evaluation report for the full breakdown.
 const MODEL_ROWS = [
-  { name: 'Logistic Regression', task: 'Baseline Binary', accuracy: '81.2%', precision: '80.5%', recall: '79.8%', f1: '80.1%', status: 'Baseline', tone: 'default' },
-  { name: 'Random Forest', task: 'Multiclass (10-cat)', accuracy: '94.8%', precision: '93.9%', recall: '94.2%', f1: '94.0%', status: 'Evaluated', tone: 'primary' },
-  { name: 'XGBoost (Production Final)', task: 'Multiclass (10-cat)', accuracy: '97.4%', precision: '97.1%', recall: '96.8%', f1: '96.9%', status: 'PRODUCTION', tone: 'success', final: true },
+  { name: 'Logistic Regression', task: 'Baseline Multiclass (10-cat)', accuracy: '69.8%', precision: '79.4%', recall: '69.8%', f1: '70.6%', status: 'Baseline', tone: 'default' },
+  { name: 'Random Forest', task: 'Multiclass (10-cat)', accuracy: '75.4%', precision: '83.9%', recall: '75.4%', f1: '77.6%', status: 'Evaluated', tone: 'primary' },
+  { name: 'XGBoost (Production Final)', task: 'Multiclass (10-cat)', accuracy: '77.0%', precision: '83.5%', recall: '77.0%', f1: '77.9%', status: 'PRODUCTION', tone: 'success', final: true },
 ];
 
 export default function ArchitectureView() {
@@ -23,7 +31,7 @@ export default function ArchitectureView() {
     <div className="space-y-6">
       <Card className="bg-gradient-to-br from-card via-card to-card p-6 sm:p-8">
         <h2 className="flex items-center gap-3 font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-          <Layers className="h-6 w-6 text-purple-500 dark:text-purple-400" />
+          <Layers className="h-6 w-6 text-primary" />
           System Architecture &amp; Machine Learning Specifications
         </h2>
         <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
@@ -107,6 +115,8 @@ export default function ArchitectureView() {
           </table>
         </div>
       </Card>
+
+      <FAQSection title="Architecture & ML FAQ" items={ARCHITECTURE_FAQ} />
     </div>
   );
 }

@@ -14,11 +14,11 @@ export default function NavItem({ item, isActive, collapsed, onSelect }) {
         'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
         collapsed && 'justify-center px-0',
         isActive
-          ? 'bg-primary/10 text-primary border border-primary/30 shadow-[0_0_12px_rgba(6,182,212,0.12)]'
+          ? 'bg-foreground text-background border border-foreground shadow-sm'
           : 'text-sidebar-foreground border border-transparent hover:bg-muted hover:text-foreground'
       )}
     >
-      <Icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground')} />
+      <Icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-background' : 'text-muted-foreground group-hover:text-foreground')} />
       <span className={cn('truncate', collapsed && 'sr-only')}>{item.label}</span>
     </button>
   );

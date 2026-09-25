@@ -2,6 +2,8 @@ import React from 'react';
 import { Database, ShieldAlert, Network } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import FAQSection from '../components/FAQSection';
+import { ANALYTICS_FAQ } from '../constants/faqContent';
 import { cn } from '../lib/cn';
 
 function portRiskBadgeVariant(risk) {
@@ -133,6 +135,8 @@ export default function AnalyticsView({ stats = {} }) {
           </div>
         </Card>
       </div>
+
+      <FAQSection title="Threat Analytics FAQ" items={ANALYTICS_FAQ} />
     </div>
   );
 }

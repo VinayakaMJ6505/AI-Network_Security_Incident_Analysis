@@ -9,7 +9,7 @@ const COLOR_MAP = {
   amber: { bg: 'bg-warning/10', border: 'border-warning/25', text: 'text-warning', accent: 'bg-warning' },
   rose: { bg: 'bg-destructive/10', border: 'border-destructive/25', text: 'text-destructive', accent: 'bg-destructive' },
   red: { bg: 'bg-destructive/10', border: 'border-destructive/25', text: 'text-destructive', accent: 'bg-destructive' },
-  purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/25', text: 'text-purple-500 dark:text-purple-400', accent: 'bg-purple-500' },
+  purple: { bg: 'bg-foreground/5', border: 'border-border', text: 'text-foreground/70', accent: 'bg-foreground/70' },
 };
 
 export default function MetricCard({

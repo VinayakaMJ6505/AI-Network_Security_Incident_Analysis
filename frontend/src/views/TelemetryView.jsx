@@ -6,6 +6,8 @@ import ProtocolPortChart from '../components/charts/ProtocolPortChart';
 import TopTalkersList from '../components/widgets/TopTalkersList';
 import LiveIncidentStream from '../components/widgets/LiveIncidentStream';
 import WidgetGrid from '../components/widgets/WidgetGrid';
+import FAQSection from '../components/FAQSection';
+import { TELEMETRY_FAQ } from '../constants/faqContent';
 import { Card } from '../components/ui/Card';
 import { useWidgetLayout } from '../hooks/useWidgetLayout';
 import { buildResponsiveLayouts } from '../utils/gridLayout';
@@ -84,6 +86,8 @@ export default function TelemetryView({ stats = {}, incidents = [], onSelectInci
         onLayoutChange={handleLayoutChange}
         onHide={hideWidget}
       />
+
+      <FAQSection title="Telemetry FAQ" items={TELEMETRY_FAQ} />
     </div>
   );
 }

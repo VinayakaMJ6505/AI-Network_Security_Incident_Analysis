@@ -4,22 +4,22 @@
 
 @layer base {
   :root {
-    --background: #f5f7fa;
-    --foreground: #0f172a;
+    --background: #ffffff;
+    --foreground: #0a0a0a;
     --card: #ffffff;
-    --card-foreground: #0f172a;
+    --card-foreground: #0a0a0a;
     --popover: #ffffff;
-    --popover-foreground: #0f172a;
-    --sidebar: #f8fafc;
-    --sidebar-foreground: #334155;
-    --sidebar-border: #e2e8f0;
-    --primary: #0891b2;
+    --popover-foreground: #0a0a0a;
+    --sidebar: #fafafa;
+    --sidebar-foreground: #525252;
+    --sidebar-border: #ebebeb;
+    --primary: #0a0a0a;
     --primary-foreground: #ffffff;
-    --muted: #eef1f6;
-    --muted-foreground: #64748b;
-    --border: #e2e8f0;
-    --input: #e2e8f0;
-    --ring: #0891b2;
+    --muted: #f5f5f5;
+    --muted-foreground: #737373;
+    --border: #ebebeb;
+    --input: #ebebeb;
+    --ring: #0a0a0a;
     --success: #059669;
     --warning: #d97706;
     --destructive: #dc2626;
@@ -32,22 +32,22 @@
   }
 
   .dark {
-    --background: #070b14;
-    --foreground: #f1f5f9;
-    --card: #0d1424;
-    --card-foreground: #f1f5f9;
-    --popover: #0f1626;
-    --popover-foreground: #f1f5f9;
-    --sidebar: #090e1a;
-    --sidebar-foreground: #cbd5e1;
-    --sidebar-border: #1e293b;
-    --primary: #06b6d4;
-    --primary-foreground: #04121a;
-    --muted: #131b2e;
-    --muted-foreground: #94a3b8;
-    --border: #1e293b;
-    --input: #1e293b;
-    --ring: #06b6d4;
+    --background: #000000;
+    --foreground: #fafafa;
+    --card: #0a0a0a;
+    --card-foreground: #fafafa;
+    --popover: #111111;
+    --popover-foreground: #fafafa;
+    --sidebar: #000000;
+    --sidebar-foreground: #a1a1a1;
+    --sidebar-border: #1f1f1f;
+    --primary: #fafafa;
+    --primary-foreground: #0a0a0a;
+    --muted: #131313;
+    --muted-foreground: #a1a1a1;
+    --border: #262626;
+    --input: #262626;
+    --ring: #fafafa;
     --success: #10b981;
     --warning: #f59e0b;
     --destructive: #ef4444;
@@ -62,26 +62,18 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
     letter-spacing: -0.01em;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  .dark body {
-    background-image:
-      radial-gradient(ellipse 70% 40% at 50% -10%, rgba(14, 165, 233, 0.10), transparent),
-      radial-gradient(ellipse 50% 30% at 85% 95%, rgba(99, 102, 241, 0.05), transparent);
-    background-size: 100% 100%;
-    background-attachment: fixed;
-  }
-
   h1, h2, h3, h4, .font-display {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
     letter-spacing: -0.025em;
   }
 
   code, pre, .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Geist Mono', monospace;
     font-feature-settings: "liga" 0;
   }
 }

@@ -21,7 +21,7 @@ const EMPTY_DASHBOARD_STATS = {
   high_risk_incidents: 0,
   critical_incidents: 0,
   attack_percentage: 0,
-  model_accuracy: 97.42,
+  model_accuracy: 76.97,
   avg_detection_time_ms: 12.4,
   overview: {
     total_events: 0,
@@ -129,16 +129,16 @@ export default function App() {
         />
       )}
 
-      <footer className="mt-8 border-t border-border pt-4 text-center text-[11px] font-mono text-muted-foreground sm:flex sm:items-center sm:justify-between sm:text-left">
-        <p>Suite Strike • MCA Project • Nitte Meenakshi Institute of Technology</p>
-        <div className="mt-2 flex items-center justify-center gap-3 sm:mt-0">
-          <span className="flex items-center gap-1.5 text-primary/80">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            FastAPI + React SOC Core
-          </span>
-          <span className="text-border">|</span>
-          <span>UNSW-NB15 ML Guard</span>
-        </div>
+      <footer className="mt-8 border-t border-border pt-5 text-center">
+        <p className="text-xs font-semibold text-foreground">
+          Developed by Students of MCA Department <span aria-hidden="true">😎</span>
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Nitte Meenakshi Institute of Technology, Bengaluru
+        </p>
+        <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+          AI Network Security Incident Analysis &middot; Batch 2025&ndash;2027
+        </p>
       </footer>
     </AppShell>
     </ThemeProvider>

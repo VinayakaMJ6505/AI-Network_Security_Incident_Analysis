@@ -40,7 +40,7 @@ export default function Sidebar({ activeTab, setActiveTab, collapsed, onToggleCo
         )}
       >
         <div className={cn('flex items-center gap-2.5 px-4 py-5', collapsed && 'justify-center px-0')}>
-          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-gradient-to-br from-primary/20 via-blue-600/15 to-transparent text-primary shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-foreground text-background">
             <Shield className="h-5 w-5" />
             <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />

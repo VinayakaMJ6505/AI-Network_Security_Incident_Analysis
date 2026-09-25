@@ -8,7 +8,7 @@ function StatusPill({ tone = 'default', icon: Icon, children, className }) {
     success: 'bg-success/10 text-success border-success/25',
     primary: 'bg-primary/10 text-primary border-primary/30',
     destructive: 'bg-destructive/10 text-destructive border-destructive/30',
-    purple: 'bg-purple-500/10 text-purple-500 border-purple-500/25 dark:text-purple-300',
+    purple: 'bg-foreground/5 text-foreground/70 border-border',
   };
   return (
     <div

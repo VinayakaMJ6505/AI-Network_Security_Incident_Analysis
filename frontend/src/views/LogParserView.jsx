@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { uploadLog } from '../services/api';
 import StatusBadge from '../components/StatusBadge';
+import FAQSection from '../components/FAQSection';
+import { LOGPARSER_FAQ } from '../constants/faqContent';
 import { Card } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import { cn } from '../lib/cn';
@@ -103,7 +105,7 @@ export default function LogParserView({ onSelectIncident, refreshIncidents }) {
                 className={cn(
                   'rounded-xl border px-3.5 py-1.5 text-xs font-medium transition-all duration-200',
                   isSelected
-                    ? 'border-primary/50 bg-primary/20 text-primary shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                    ? 'border-foreground bg-foreground text-background shadow-sm'
                     : 'border-border bg-muted text-muted-foreground hover:border-primary/30 hover:text-foreground'
                 )}
               >
@@ -247,6 +249,8 @@ export default function LogParserView({ onSelectIncident, refreshIncidents }) {
           )}
         </Card>
       </div>
+
+      <FAQSection title="Log Parser FAQ" items={LOGPARSER_FAQ} />
     </div>
   );
 }

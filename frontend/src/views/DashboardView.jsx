@@ -4,6 +4,8 @@ import AttackDistributionChart from '../components/AttackDistributionChart';
 import AttackTrendsChart from '../components/AttackTrendsChart';
 import RecentIncidentsTable from '../components/RecentIncidentsTable';
 import WidgetGrid from '../components/widgets/WidgetGrid';
+import FAQSection from '../components/FAQSection';
+import { DASHBOARD_FAQ } from '../constants/faqContent';
 import { useWidgetLayout } from '../hooks/useWidgetLayout';
 import { buildResponsiveLayouts } from '../utils/gridLayout';
 import { cn } from '../lib/cn';
@@ -159,7 +161,7 @@ export default function DashboardView({
                 {currentDefconObj.label}: {currentDefconObj.title}
               </span>
               <span className="whitespace-nowrap rounded-full border border-primary/20 bg-primary/10 px-3 py-1 font-sans text-xs text-primary">
-                XGBoost ML Engine • 97.4% Acc
+                XGBoost ML Engine • {stats.model_accuracy !== undefined ? stats.model_accuracy.toFixed(1) : '—'}% Acc
               </span>
               <span className="whitespace-nowrap rounded-full border border-success/20 bg-success/10 px-3 py-1 font-sans text-xs text-success">
                 MongoDB • incident_db
@@ -240,6 +242,8 @@ export default function DashboardView({
         onLayoutChange={handleLayoutChange}
         onHide={hideWidget}
       />
+
+      <FAQSection title="Dashboard FAQ" items={DASHBOARD_FAQ} />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import React from 'react';
 import RecentIncidentsTable from '../components/RecentIncidentsTable';
+import FAQSection from '../components/FAQSection';
+import { INCIDENTS_FAQ } from '../constants/faqContent';
 import { Download, PlusCircle } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -58,6 +60,8 @@ export default function IncidentExplorerView({
         showFilters={true}
         title="Detected Security Incidents Catalog"
       />
+
+      <FAQSection title="Incidents FAQ" items={INCIDENTS_FAQ} />
     </div>
   );
 }

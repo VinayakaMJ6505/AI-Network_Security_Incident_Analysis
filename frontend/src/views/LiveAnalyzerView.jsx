@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ATTACK_PRESETS } from '../utils/presets';
 import { analyzeEvent } from '../services/api';
 import StatusBadge from '../components/StatusBadge';
+import FAQSection from '../components/FAQSection';
+import { ANALYZER_FAQ } from '../constants/faqContent';
 import { Card } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
@@ -113,7 +115,7 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
                 className={cn(
                   'rounded-xl border px-3.5 py-1.5 text-xs font-medium transition-all duration-200',
                   isSelected
-                    ? 'border-primary/50 bg-primary/20 text-primary shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                    ? 'border-foreground bg-foreground text-background shadow-sm'
                     : 'border-border bg-muted text-muted-foreground hover:border-primary/30 hover:text-foreground'
                 )}
               >
@@ -147,7 +149,7 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
               <div>
                 <label className="mb-1.5 flex items-center justify-between text-xs font-semibold text-foreground">
                   <span>Destination IP</span>
-                  <span className="font-mono text-[10px] text-purple-500 dark:text-purple-400">TARGET ASSET</span>
+                  <span className="font-mono text-[10px] text-info">TARGET ASSET</span>
                 </label>
                 <input type="text" name="destination_ip" value={formData.destination_ip} onChange={handleInputChange} className={inputClass} required />
               </div>
@@ -371,6 +373,8 @@ export default function LiveAnalyzerView({ onSelectIncident }) {
           )}
         </Card>
       </div>
+
+      <FAQSection title="Live Analyzer FAQ" items={ANALYZER_FAQ} />
     </div>
   );
 }
