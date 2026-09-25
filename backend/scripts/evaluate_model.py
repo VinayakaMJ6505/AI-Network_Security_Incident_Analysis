@@ -57,7 +57,12 @@ logger.info("Loading test CSV: %s", TEST_CSV)
 df = pd.read_csv(TEST_CSV, encoding="latin1", low_memory=False)
 
 df["attack_cat"] = df["attack_cat"].fillna("Normal").str.strip().str.title()
-rename_map = {"Backdoors": "Backdoor", "Worm": "Worms"}
+# str.title() lowercases every letter after the first in each word, so "DoS"
+# becomes "Dos" — silently dropped by the valid_classes filter below unless
+# mapped back. That was previously excluding all DoS records (~5% of the
+# test set, and the single worst-performing class) from the benchmark
+# entirely, inflating the reported accuracy.
+rename_map = {"Backdoors": "Backdoor", "Worm": "Worms", "Dos": "DoS"}
 df["attack_cat"] = df["attack_cat"].replace(rename_map)
 
 valid_classes = set(ml_service.classes)

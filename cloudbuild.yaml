@@ -49,38 +49,14 @@ steps:
       - "."
     waitFor: ["backend-tests"]
 
-  # ── 2. Build frontend Docker image ───────────────────────
-  - name: "gcr.io/cloud-builders/docker"
-    id: "build-frontend"
-    args:
-      - "build"
-      - "-f"
-      - "Dockerfile.frontend"
-      - "--build-arg"
-      - "VITE_API_BASE_URL=https://${_BACKEND_SERVICE}-${_HASH}-${_REGION}.a.run.app"
-      - "-t"
-      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:$SHORT_SHA"
-      - "-t"
-      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:latest"
-      - "."
-    # Build frontend in parallel with backend
-    waitFor: ["-"]
-
-  # ── 3. Push backend image ─────────────────────────────────
+  # ── 2. Push backend image ─────────────────────────────────
   - name: "gcr.io/cloud-builders/docker"
     id: "push-backend"
     args: ["push", "--all-tags",
            "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/backend"]
     waitFor: ["build-backend"]
 
-  # ── 4. Push frontend image ────────────────────────────────
-  - name: "gcr.io/cloud-builders/docker"
-    id: "push-frontend"
-    args: ["push", "--all-tags",
-           "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend"]
-    waitFor: ["build-frontend"]
-
-  # ── 5. Deploy backend to Cloud Run ───────────────────────
+  # ── 3. Deploy backend to Cloud Run ────────────────────────
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     id: "deploy-backend"
     entrypoint: "gcloud"
@@ -98,10 +74,58 @@ steps:
       - "--min-instances=0"
       - "--max-instances=5"
       - "--concurrency=80"
-      - "--set-env-vars=MONGODB_URI=${_MONGODB_URI},MONGODB_DB_NAME=incident_db,GROQ_API_KEY=${_GROQ_API_KEY},OPENAI_API_KEY=${_OPENAI_API_KEY}"
+      # GCP_PROJECT_ID/GCP_REGION let genai_service.py call Vertex AI (Gemini)
+      # via Application Default Credentials — no key needed. This requires a
+      # ONE-TIME manual grant (not automated here, since it needs project
+      # IAM-admin rights beyond what a deploy pipeline should hold):
+      #   gcloud projects add-iam-policy-binding $PROJECT_ID \
+      #     --member="serviceAccount:<cloud-run-runtime-sa>" \
+      #     --role="roles/aiplatform.user"
+      - "--set-env-vars=MONGODB_URI=${_MONGODB_URI},MONGODB_DB_NAME=incident_db,GROQ_API_KEY=${_GROQ_API_KEY},OPENAI_API_KEY=${_OPENAI_API_KEY},GCP_PROJECT_ID=$PROJECT_ID,GCP_REGION=${_REGION}"
     waitFor: ["push-backend"]
 
-  # ── 6. Deploy frontend to Cloud Run ──────────────────────
+  # ── 4. Read back the real backend URL ─────────────────────
+  # Cloud Run only assigns the service URL once it's deployed, so the
+  # frontend image (which needs to bake VITE_API_BASE_URL in at build
+  # time) cannot be built in parallel with the backend — it has to wait
+  # for this step. This replaces a previous hardcoded URL guess
+  # (`${_BACKEND_SERVICE}-${_HASH}-${_REGION}.a.run.app`) that referenced
+  # an undefined `_HASH` substitution and also guessed a Cloud Run URL
+  # format that isn't guaranteed for a given project/region.
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "get-backend-url"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud run services describe "${_BACKEND_SERVICE}" \
+          --region="${_REGION}" --format="value(status.url)" \
+          > /workspace/backend_url.txt
+        echo "Backend URL: $(cat /workspace/backend_url.txt)"
+    waitFor: ["deploy-backend"]
+
+  # ── 5. Build frontend Docker image (using the real backend URL) ──
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-frontend"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        docker build -f Dockerfile.frontend \
+          --build-arg VITE_API_BASE_URL="$(cat /workspace/backend_url.txt)" \
+          -t "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:$SHORT_SHA" \
+          -t "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:latest" \
+          .
+    waitFor: ["get-backend-url"]
+
+  # ── 6. Push frontend image ────────────────────────────────
+  - name: "gcr.io/cloud-builders/docker"
+    id: "push-frontend"
+    args: ["push", "--all-tags",
+           "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend"]
+    waitFor: ["build-frontend"]
+
+  # ── 7. Deploy frontend to Cloud Run ───────────────────────
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     id: "deploy-frontend"
     entrypoint: "gcloud"

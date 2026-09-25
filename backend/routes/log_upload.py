@@ -11,6 +11,7 @@ from typing import List, Dict, Any
 
 from models.schemas import LogUploadSummary
 from services import ml_service, nlp_service, risk_service, genai_service, db_service
+from services.rate_limiter import enforce_genai_rate_limit
 from utils.helpers import get_service_for_port, get_current_timestamp
 
 router = APIRouter(tags=["Log Upload"])
@@ -33,6 +34,11 @@ async def upload_log(request: Request):
     try:
         # Case A: JSON body from Frontend (LogParserView / uploadLog())
         if "application/json" in content_type:
+            # Only this branch (single-incident JSON body) calls GenAI below —
+            # bulk CSV/JSON/text file uploads never do, so the rate limit is
+            # enforced here rather than on the whole route.
+            await enforce_genai_rate_limit(request)
+
             body = await request.json()
             raw_log = body.get("log") or body.get("text") or ""
             entities_override = body.get("entities") or {}

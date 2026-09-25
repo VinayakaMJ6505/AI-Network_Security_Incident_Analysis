@@ -5,7 +5,8 @@ Generates:
   2. Evidence
   3. Potential Impact
   4. Investigation Recommendations
-Supports external LLMs (Groq, OpenAI) with an intelligent domain-specific offline engine fallback.
+Supports external LLMs (Vertex AI Gemini, Groq, OpenAI) with an intelligent
+domain-specific offline engine fallback.
 """
 import os
 import json
@@ -13,7 +14,19 @@ import logging
 from typing import Dict, Any, List
 from datetime import datetime
 
+from pydantic import BaseModel
+
 logger = logging.getLogger(__name__)
+
+
+class _IncidentExplanationSchema(BaseModel):
+    """Structured-output schema handed to Gemini so it returns exactly the
+    fields this service expects, instead of free-form text that would need
+    fragile parsing."""
+    incident_summary: str
+    evidence: List[str]
+    potential_impact: str
+    investigation_recommendations: List[str]
 
 ATTACK_KNOWLEDGE_BASE = {
     "Analysis": {
@@ -116,6 +129,12 @@ ATTACK_KNOWLEDGE_BASE = {
 
 class GenAIService:
     def __init__(self):
+        # GCP_PROJECT_ID / GCP_REGION are the same env vars already used for
+        # gcloud deployment (see backend/.env.example) — when this runs on
+        # Cloud Run under the project's own service account, Vertex AI needs
+        # no separate API key (Application Default Credentials handle auth).
+        self.gcp_project_id = os.getenv("GCP_PROJECT_ID")
+        self.gcp_region = os.getenv("GCP_REGION", "us-central1")
         self.groq_api_key = os.getenv("GROQ_API_KEY")
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
 
@@ -131,6 +150,15 @@ class GenAIService:
         destination_ip = incident_data.get("destination_ip", "10.0.0.10")
         port = incident_data.get("destination_port", incident_data.get("port", 80))
         protocol = incident_data.get("protocol", "TCP")
+
+        # Try Vertex AI (Gemini) first — this is the GCP-native path, used
+        # automatically once GCP_PROJECT_ID is set (i.e. once deployed on
+        # Cloud Run under the project's own account). No API key required.
+        if self.gcp_project_id:
+            try:
+                return self._call_vertex_gemini(incident_data)
+            except Exception as e:
+                logger.warning(f"Vertex AI Gemini call failed, falling back: {e}")
 
         # Try LLM provider if API key exists
         if self.groq_api_key:
@@ -212,6 +240,46 @@ class GenAIService:
             "generated_at": datetime.utcnow().isoformat() + "Z",
             "provider": "AI-Cybersecurity-Knowledge-Engine"
         }
+
+    def _call_vertex_gemini(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(
+            vertexai=True,
+            project=self.gcp_project_id,
+            location=self.gcp_region
+        )
+        prompt = f"""You are an expert SOC Cybersecurity Analyst. Analyze this incident:
+Attack Type: {data.get('attack_type')}
+Confidence: {data.get('confidence')}
+Risk Score: {data.get('risk_score')}
+Severity: {data.get('severity')}
+Source IP: {data.get('source_ip')}
+Destination IP: {data.get('destination_ip')}
+Port: {data.get('port') or data.get('destination_port')}
+Protocol: {data.get('protocol')}
+
+Write a concise incident_summary, 2-4 evidence bullet points, a potential_impact
+paragraph, and 3-5 investigation_recommendations for a SOC analyst."""
+
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-001",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=_IncidentExplanationSchema
+            )
+        )
+        content = json.loads(response.text)
+        content["attack_type"] = data.get("attack_type")
+        content["risk_score"] = data.get("risk_score")
+        content["severity"] = data.get("severity")
+        content["summary"] = content["incident_summary"]
+        content["recommendations"] = content["investigation_recommendations"]
+        content["generated_at"] = datetime.utcnow().isoformat() + "Z"
+        content["provider"] = "Vertex AI (Gemini 2.0 Flash)"
+        return content
 
     def _call_groq(self, data: Dict[str, Any]) -> Dict[str, Any]:
         from groq import Groq

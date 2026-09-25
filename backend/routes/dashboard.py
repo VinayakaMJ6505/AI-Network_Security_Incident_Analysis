@@ -21,7 +21,7 @@ from models.schemas import (
     TopPortItem,
     TopSourceItem
 )
-from services import db_service
+from services import db_service, ml_service
 from utils.helpers import get_service_for_port
 
 router = APIRouter(tags=["Dashboard"])
@@ -186,7 +186,7 @@ async def get_dashboard_metrics():
         high_risk_incidents=high_risk_incidents,
         critical_incidents=critical_incidents,
         attack_percentage=attack_pct,
-        model_accuracy=97.42,
+        model_accuracy=round(ml_service.benchmark.get("accuracy", 0.7697) * 100, 2),
         avg_detection_time_ms=12.4,
         overview=SecurityOverview(
             total_events=total_events,

@@ -12,6 +12,14 @@ python-dotenv>=1.0.0
 requests>=2.31.0
 httpx>=0.27.0
 
+# GenAI providers (services/genai_service.py — optional; falls back to the
+# offline knowledge engine when none are configured). Vertex AI is tried
+# first whenever GCP_PROJECT_ID is set (keyless — uses the Cloud Run
+# service account); Groq/OpenAI are opt-in via API key env vars.
+google-genai>=0.7.0
+groq>=0.11.0
+openai>=1.40.0
+
 # GCP SDKs
 google-cloud-secret-manager>=2.20.0
 google-cloud-logging>=3.10.0

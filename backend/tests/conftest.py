@@ -9,6 +9,14 @@ import pytest
 backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, backend_dir)
 
+# TestClient uses a fixed fake client IP ("testclient") for every request,
+# shared across every test module in this pytest process — so the combined
+# GenAI-route calls across unrelated test files would otherwise trip the
+# production rate limiter (services/rate_limiter.py) well before any single
+# test file's own assertions are checked. Must be set before `main` (and
+# therefore the route modules) is imported anywhere below.
+os.environ.setdefault("GENAI_RATE_LIMIT_DISABLED", "1")
+
 @pytest.fixture(scope="module")
 def client():
     """FastAPI TestClient shared across tests."""

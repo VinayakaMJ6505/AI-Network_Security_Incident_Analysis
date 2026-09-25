@@ -186,7 +186,7 @@ class DashboardStats(BaseModel):
     high_risk_incidents: int
     critical_incidents: int
     attack_percentage: float = 0.0
-    model_accuracy: float = 97.42
+    model_accuracy: float = 76.97  # real measured value; see backend/reports/model_evaluation_report.json
     avg_detection_time_ms: float = 12.4
     overview: SecurityOverview
     attack_distribution: List[AttackDistributionItem]

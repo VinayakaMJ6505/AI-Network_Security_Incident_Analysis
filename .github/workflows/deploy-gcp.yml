@@ -102,6 +102,15 @@ jobs:
             "${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/backend"
 
       - name: Deploy backend to Cloud Run
+        # GCP_PROJECT_ID/GCP_REGION let genai_service.py call Vertex AI
+        # (Gemini) via Application Default Credentials — no API key needed.
+        # This requires a ONE-TIME manual grant of the Vertex AI User role
+        # to the Cloud Run runtime service account (not automated here,
+        # since it needs project IAM-admin rights beyond what this deploy
+        # workflow's service account should hold):
+        #   gcloud projects add-iam-policy-binding <project> \
+        #     --member="serviceAccount:<cloud-run-runtime-sa>" \
+        #     --role="roles/aiplatform.user"
         run: |
           gcloud run deploy ${{ env.BACKEND_SERVICE }} \
             --image="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/backend:${{ github.sha }}" \
@@ -113,7 +122,7 @@ jobs:
             --cpu=2 \
             --min-instances=0 \
             --max-instances=5 \
-            --set-env-vars="MONGODB_URI=${{ secrets.MONGODB_URI }},MONGODB_DB_NAME=incident_db,GROQ_API_KEY=${{ secrets.GROQ_API_KEY }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+            --set-env-vars="MONGODB_URI=${{ secrets.MONGODB_URI }},MONGODB_DB_NAME=incident_db,GROQ_API_KEY=${{ secrets.GROQ_API_KEY }},OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},GCP_REGION=${{ env.REGION }}"
 
       - name: Get backend URL
         id: backend-url

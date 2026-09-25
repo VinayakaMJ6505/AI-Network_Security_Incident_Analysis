@@ -3,15 +3,16 @@ Explain Route: POST /api/explain
 Generates GenAI incident summary, technical evidence, potential impact, and SOC investigation recommendations.
 Dual-keyed response guarantees 100% compatibility with React frontend and API contracts.
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime
 
 from models.schemas import ExplainRequest, ExplainResponse
 from services import genai_service, db_service
+from services.rate_limiter import enforce_genai_rate_limit
 
 router = APIRouter(tags=["Explain"])
 
-@router.post("/explain", response_model=ExplainResponse)
+@router.post("/explain", response_model=ExplainResponse, dependencies=[Depends(enforce_genai_rate_limit)])
 async def explain_incident(payload: ExplainRequest):
     try:
         incident_data = {}

@@ -76,7 +76,10 @@ logger.info("Loading training CSV: %s", TRAIN_CSV)
 df_all = pd.read_csv(TRAIN_CSV, encoding="latin1", low_memory=False)
 
 df_all["attack_cat"] = df_all["attack_cat"].fillna("Normal").str.strip().str.title()
-rename_map = {"Backdoors": "Backdoor", "Worm": "Worms"}
+# str.title() turns "DoS" into "Dos" — map it back so seeded ground_truth_category
+# values match the model's actual class names (see evaluate_model.py for the
+# same fix and why it matters).
+rename_map = {"Backdoors": "Backdoor", "Worm": "Worms", "Dos": "DoS"}
 df_all["attack_cat"] = df_all["attack_cat"].replace(rename_map)
 
 classes = ["Analysis", "Backdoor", "DoS", "Exploits", "Fuzzers",

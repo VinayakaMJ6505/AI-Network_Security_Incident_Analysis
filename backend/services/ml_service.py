@@ -3,6 +3,7 @@ Machine Learning Service for Network Security Incident Analysis.
 Loads the trained XGBoost model and preprocessors from final_network_security_xgboost.pkl.
 """
 import os
+import json
 import logging
 import numpy as np
 import pandas as pd
@@ -13,13 +14,28 @@ from utils.helpers import UNSW_NUMERICAL_DEFAULTS
 
 logger = logging.getLogger(__name__)
 
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Search paths for model pickle
 MODEL_PATHS = [
-    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "final_network_security_xgboost.pkl"),
-    os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "final_network_security_xgboost.pkl"),
+    os.path.join(os.path.dirname(BACKEND_DIR), "final_network_security_xgboost.pkl"),
+    os.path.join(BACKEND_DIR, "final_network_security_xgboost.pkl"),
     "final_network_security_xgboost.pkl",
     "../final_network_security_xgboost.pkl"
 ]
+
+# Real, measured benchmark (backend/scripts/evaluate_model.py against the full
+# UNSW-NB15 test set) — not a placeholder. Falls back to that script's last
+# known-good result if the report file is missing so the API never reports a
+# fabricated number.
+BENCHMARK_REPORT_PATH = os.path.join(BACKEND_DIR, "reports", "model_evaluation_report.json")
+FALLBACK_BENCHMARK = {
+    "accuracy": 0.7697,
+    "macro_precision": 0.5326,
+    "macro_recall": 0.5414,
+    "macro_f1": 0.4966,
+    "weighted_f1": 0.7788,
+}
 
 class MLService:
     def __init__(self):
@@ -34,7 +50,24 @@ class MLService:
             'Generic', 'Normal', 'Reconnaissance', 'Shellcode', 'Worms'
         ]
         self.is_loaded = False
+        self.benchmark = dict(FALLBACK_BENCHMARK)
         self._load_model()
+        self._load_benchmark()
+
+    def _load_benchmark(self):
+        """Loads the real, measured accuracy from the last run of
+        backend/scripts/evaluate_model.py, so the API and UI report actual
+        performance instead of a hand-typed placeholder."""
+        try:
+            if os.path.exists(BENCHMARK_REPORT_PATH):
+                with open(BENCHMARK_REPORT_PATH, "r", encoding="utf-8") as f:
+                    report = json.load(f)
+                self.benchmark = report.get("summary", self.benchmark)
+                self.benchmark["generated_at"] = report.get("generated_at")
+                self.benchmark["total_test_records"] = report.get("total_test_records")
+                logger.info(f"Loaded model benchmark: accuracy={self.benchmark.get('accuracy')}")
+        except Exception as e:
+            logger.warning(f"Could not load benchmark report ({e}). Using fallback accuracy.")
 
     def _load_model(self):
         for path in MODEL_PATHS:

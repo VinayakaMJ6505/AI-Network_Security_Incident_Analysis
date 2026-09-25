@@ -3,14 +3,15 @@ Analyze Route: POST /api/analyze
 Performs network security event analysis using NLP log extraction, ML classification, risk scoring,
 and generates immediate GenAI explanation for live analysis.
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from models.schemas import AnalyzeRequest, AnalyzeResponse, ExtractedEntities
 from services import ml_service, nlp_service, risk_service, genai_service, db_service
+from services.rate_limiter import enforce_genai_rate_limit
 from utils.helpers import get_service_for_port, get_current_timestamp
 
 router = APIRouter(tags=["Analyze"])
 
-@router.post("/analyze", response_model=AnalyzeResponse)
+@router.post("/analyze", response_model=AnalyzeResponse, dependencies=[Depends(enforce_genai_rate_limit)])
 async def analyze_event(payload: AnalyzeRequest):
     try:
         extracted = {}

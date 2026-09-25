@@ -32,17 +32,34 @@ echo ""
 gcloud config set project "$PROJECT_ID"
 
 # ── 2. Enable required GCP APIs ──────────────────────────────
-echo "[1/7] Enabling GCP APIs..."
+echo "[1/8] Enabling GCP APIs..."
 gcloud services enable \
   run.googleapis.com \
   artifactregistry.googleapis.com \
   cloudbuild.googleapis.com \
   secretmanager.googleapis.com \
   logging.googleapis.com \
+  aiplatform.googleapis.com \
   --project="$PROJECT_ID"
 
+# ── 2b. Grant the Cloud Run runtime service account Vertex AI access ──
+# genai_service.py calls Vertex AI (Gemini) using Application Default
+# Credentials — no API key. That only works if Cloud Run's runtime service
+# account (the project's default compute service account, unless a custom
+# one is set with --service-account) has the Vertex AI User role. Without
+# this grant, every GenAI request on the deployed backend will 403 from
+# Vertex AI and silently fall back to Groq/OpenAI/offline instead.
+echo "      Granting Vertex AI access to the Cloud Run runtime service account..."
+PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+RUNTIME_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:${RUNTIME_SA}" \
+  --role="roles/aiplatform.user" \
+  --condition=None \
+  --quiet
+
 # ── 3. Create Artifact Registry repository ───────────────────
-echo "[2/7] Creating Artifact Registry repository: $REPO ..."
+echo "[2/8] Creating Artifact Registry repository: $REPO ..."
 gcloud artifacts repositories create "$REPO" \
   --repository-format=docker \
   --location="$REGION" \
@@ -50,7 +67,7 @@ gcloud artifacts repositories create "$REPO" \
   --project="$PROJECT_ID" 2>/dev/null || echo "  (repository already exists)"
 
 # ── 4. Auth Docker for Artifact Registry ─────────────────────
-echo "[3/7] Configuring Docker credentials..."
+echo "[3/8] Configuring Docker credentials..."
 gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
 
 # ── 5. Build & push backend ───────────────────────────────────
@@ -58,7 +75,7 @@ SHORT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "local")
 BACKEND_IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/backend:${SHORT_SHA}"
 BACKEND_LATEST="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/backend:latest"
 
-echo "[4/7] Building backend Docker image..."
+echo "[4/8] Building backend Docker image..."
 docker build -f Dockerfile.backend \
   -t "$BACKEND_IMAGE" \
   -t "$BACKEND_LATEST" \
@@ -69,7 +86,7 @@ docker push "$BACKEND_IMAGE"
 docker push "$BACKEND_LATEST"
 
 # ── 6. Deploy backend to Cloud Run ───────────────────────────
-echo "[5/7] Deploying backend to Cloud Run..."
+echo "[6/8] Deploying backend to Cloud Run..."
 
 # Load env vars from .env file if it exists
 MONGODB_URI="${MONGODB_URI:-mongodb://localhost:27017}"
@@ -90,7 +107,7 @@ gcloud run deploy "$BACKEND_SERVICE" \
   --cpu=2 \
   --min-instances=0 \
   --max-instances=5 \
-  --set-env-vars="MONGODB_URI=${MONGODB_URI},MONGODB_DB_NAME=incident_db,GROQ_API_KEY=${GROQ_API_KEY},OPENAI_API_KEY=${OPENAI_API_KEY}" \
+  --set-env-vars="MONGODB_URI=${MONGODB_URI},MONGODB_DB_NAME=incident_db,GROQ_API_KEY=${GROQ_API_KEY},OPENAI_API_KEY=${OPENAI_API_KEY},GCP_PROJECT_ID=${PROJECT_ID},GCP_REGION=${REGION}" \
   --project="$PROJECT_ID"
 
 BACKEND_URL=$(gcloud run services describe "$BACKEND_SERVICE" \
@@ -110,7 +127,7 @@ gcloud run services update "$BACKEND_SERVICE" \
 FRONTEND_IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/frontend:${SHORT_SHA}"
 FRONTEND_LATEST="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/frontend:latest"
 
-echo "[6/7] Building frontend Docker image (API_BASE_URL=$BACKEND_URL)..."
+echo "[7/8] Building frontend Docker image (API_BASE_URL=$BACKEND_URL)..."
 docker build -f Dockerfile.frontend \
   --build-arg "VITE_API_BASE_URL=${BACKEND_URL}" \
   -t "$FRONTEND_IMAGE" \
@@ -139,7 +156,7 @@ FRONTEND_URL=$(gcloud run services describe "$FRONTEND_SERVICE" \
   --project="$PROJECT_ID")
 
 # ── 8. Update backend CORS with final frontend URL ────────────
-echo "[7/7] Updating backend ALLOWED_ORIGINS to $FRONTEND_URL ..."
+echo "[8/8] Updating backend ALLOWED_ORIGINS to $FRONTEND_URL ..."
 gcloud run services update "$BACKEND_SERVICE" \
   --region="$REGION" \
   --update-env-vars="ALLOWED_ORIGINS=${FRONTEND_URL}" \
